@@ -1,5 +1,6 @@
 #include "DxLib.h"
 #include "vr.hpp"
+#include "Debug.h"
 
 
 int vrEyeRight;
@@ -7,7 +8,7 @@ int vrEyeLeft;
 int stage;
 int chara;
 
-void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX cmaraPos)
+void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX cmaraPos,MATRIX pro)
 {
 	if (nEye == vr::Eye_Right) { SetDrawScreen(vrEyeRight); }
 	if (nEye == vr::Eye_Left) { SetDrawScreen(vrEyeLeft); }
@@ -15,6 +16,7 @@ void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX cmaraPos)
 	ClearDrawScreen();
 	SetCameraScreenCenter(DXLIB_VR::GetHMDWidth()/2.0f, DXLIB_VR::GetHMDHeight()/2.0f); //カメラが見ている映像の中心座標を再設定
 	SetCameraNearFar(0.1f, 15000.0f);
+	SetTransformToProjection(&pro);
 	SetCameraViewMatrix(cmaraPos);
 	MV1DrawModel(stage);
 	SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
@@ -22,6 +24,7 @@ void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX cmaraPos)
 
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
+	CreateConsole();
 	if (SetUseDirect3DVersion(DX_DIRECT3D_11) == -1) { return 0; }//openではdirectX 11を使用するため変更
 	if (SetGraphMode(2560, 1440, 32) == -1) { return 0; }//画面サイズの設定
 	if (SetBackgroundColor(50, 50, 50) == -1) { return 0; }//背景の色を指定
@@ -32,6 +35,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	if (SetUseZBuffer3D(TRUE) == -1) { return 0; }// Zバッファを有効にする。
 	if (SetWriteZBuffer3D(TRUE) == -1) { return 0; }// Zバッファへの書き込みを有効にする。
 
+	
+
 	if (DXLIB_VR::Init()==false){
 		DxLib_End();
 		return 0;
@@ -39,6 +44,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 
 	vrEyeRight = MakeScreen(DXLIB_VR::GetHMDWidth(), DXLIB_VR::GetHMDHeight(), FALSE);
 	vrEyeLeft = MakeScreen(DXLIB_VR::GetHMDWidth(), DXLIB_VR::GetHMDHeight(), FALSE);
+
+	printf("GetHMDWidth=%d", DXLIB_VR::GetHMDWidth());
+	printf("GetHMDHeight=%d", DXLIB_VR::GetHMDHeight());
 
 	stage = MV1LoadModel(".\\res\\mmd_batokin_island\\batokin_island5.x");
 	MV1SetScale(stage,VGet(3.0f, 3.0f, 3.0f));
@@ -48,8 +56,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	while (ScreenFlip() == 0 && ProcessMessage() == 0 && ClearDrawScreen() == 0) {
 		DXLIB_VR::updateVRState();
 		
-		UpdateCameraScreen(vr::Eye_Right, DXLIB_VR::GetEyeMat(vr::Eye_Right));
-		UpdateCameraScreen(vr::Eye_Left, DXLIB_VR::GetEyeMat(vr::Eye_Left));
+		UpdateCameraScreen(vr::Eye_Right, DXLIB_VR::GetEyeMat(vr::Eye_Right), DXLIB_VR::GetDXProjectionMatrix(vr::Eye_Right));
+		UpdateCameraScreen(vr::Eye_Left, DXLIB_VR::GetEyeMat(vr::Eye_Left), DXLIB_VR::GetDXProjectionMatrix(vr::Eye_Left));
 		DXLIB_VR::putTex((ID3D11Texture2D*)GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
 		DXLIB_VR::putTex((ID3D11Texture2D*)GetGraphID3D11Texture2D(vrEyeLeft), vr::Eye_Left);     
 			 
@@ -61,7 +69,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		DXLIB_VR::putTex((ID3D11Texture2D*)GetUseDirect3D11BackBufferTexture2D(), vr::Eye_Left);
 		*/
 
-
+		ConsoleUpdate(false);
 		DXLIB_VR::render();
 	}
 

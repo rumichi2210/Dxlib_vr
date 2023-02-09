@@ -118,6 +118,20 @@ namespace DXLIB_VR {
 	int GetHMDWidth() { return hmdWidth; }
 	int GetHMDHeight() { return hmdHeight; }
 
+	MATRIX GetDXProjectionMatrix(vr::Hmd_Eye nEye) {
+		vr::HmdMatrix44_t mat = m_pHMD->GetProjectionMatrix(nEye, m_fNearClip, m_fFarClip);
+
+		MATRIX m_pos;
+		m_pos.m[0][0] = mat.m[0][0]; m_pos.m[0][1] = mat.m[0][1]; m_pos.m[0][2] = mat.m[0][2]; m_pos.m[0][3] = mat.m[0][3];
+		m_pos.m[1][0] = mat.m[1][0]; m_pos.m[1][1] = mat.m[1][1]; m_pos.m[1][2] = mat.m[1][2]; m_pos.m[1][3] = mat.m[1][3];
+		m_pos.m[2][0] = mat.m[2][0]; m_pos.m[2][1] = mat.m[2][1]; m_pos.m[2][2] = mat.m[2][2]; m_pos.m[2][3] = mat.m[2][3];
+		m_pos.m[3][0] = mat.m[3][0]; m_pos.m[3][1] = mat.m[3][1]; m_pos.m[3][2] = mat.m[3][2]; m_pos.m[3][3] = mat.m[3][3];
+
+		MTranspose(m_pos);
+
+		return m_pos;
+	}
+
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Gets a Matrix Projection Eye with respect to nEye.
@@ -163,13 +177,15 @@ namespace DXLIB_VR {
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	{
 		Matrix4 matMVP;
+		printf("m_mat4HMDPose\n");
+		MATRIX4_PRINT(m_mat4HMDPose);
 		if (nEye == vr::Eye_Left)
 		{
-			matMVP = m_mat4ProjectionLeft * m_mat4eyePosLeft * m_mat4HMDPose;
+			matMVP = m_mat4eyePosLeft * m_mat4HMDPose;
 		}
 		else if (nEye == vr::Eye_Right)
 		{
-			matMVP = m_mat4ProjectionRight * m_mat4eyePosRight * m_mat4HMDPose;
+			matMVP = m_mat4eyePosRight * m_mat4HMDPose;
 		}
 
 		return matMVP;
@@ -189,10 +205,14 @@ namespace DXLIB_VR {
 		m_strPoseClasses = "";
 		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
+			
 			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 			{
 				m_iValidPoseCount++;
 				m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+
+				printf("m_rTrackedDevicePose[%d]\n", nDevice);
+				MATRIX4_PRINT(m_rmat4DevicePose[nDevice]);
 				if (m_rDevClassChar[nDevice] == 0)
 				{
 					switch (m_pHMD->GetTrackedDeviceClass(nDevice))
@@ -230,14 +250,25 @@ namespace DXLIB_VR {
 		return matrixObj;
 	}
 
+	void MATRIX4_PRINT(Matrix4 val) {
+		const float* pos = val.get();
+		for (int i = 0; i < 16; i++) {
+			printf("pos[%d]=%f\n", i, pos[i]);
+		}
+	}
+
 	//-----------------------------------------------------------------------------
 	// Purpose:
 	//-----------------------------------------------------------------------------
 	void SetupCameras()
 	{
 		m_mat4ProjectionLeft = GetHMDMatrixProjectionEye(vr::Eye_Left);
+		printf("m_mat4ProjectionLef\n");
+		MATRIX4_PRINT(m_mat4ProjectionLeft);
 		m_mat4ProjectionRight = GetHMDMatrixProjectionEye(vr::Eye_Right);
 		m_mat4eyePosLeft = GetHMDMatrixPoseEye(vr::Eye_Left);
+		printf("m_mat4eyePosLeft\n");
+		MATRIX4_PRINT(m_mat4eyePosLeft);
 		m_mat4eyePosRight = GetHMDMatrixPoseEye(vr::Eye_Right);
 	}
 

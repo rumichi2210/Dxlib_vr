@@ -16,6 +16,10 @@ namespace DXLIB_VR {
 	int GetHMDWidth();
 	int GetHMDHeight();
 
+	void MATRIX4_PRINT(Matrix4 val);
+
+	MATRIX GetDXProjectionMatrix(vr::Hmd_Eye nEye);
+
 	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
 	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
