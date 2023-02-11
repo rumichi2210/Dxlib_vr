@@ -68,15 +68,26 @@ namespace DXLIB_VR {
 				if (!pose.bPoseIsValid)
 					continue;
 
+				printf("unTrackedDevice=%d->type<%c>\n", unTrackedDevice, m_rDevClassChar[unTrackedDevice]);
 				const Matrix4& matDeviceToTracking = m_rmat4DevicePose[unTrackedDevice];
+				printf("matDeviceToTracking\n");
+				MATRIX4_PRINT(matDeviceToTracking);
 				matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left) * matDeviceToTracking;
+				printf("GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left)\n");
+				MATRIX4_PRINT(GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left));
 			}
+			//matMVP = m_mat4eyePosLeft * m_mat4HMDPose * m_rmat4DevicePose[0];
 			const float* pos = matMVP.get();
 			MATRIX m_pos;
 			m_pos.m[0][0] = pos[0]; m_pos.m[0][1] = pos[1]; m_pos.m[0][2] = pos[2]; m_pos.m[0][3] = pos[3];
 			m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
 			m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
 			m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
+
+			printf("m_pos[0][n]->%f,%f,%f,%f\n", m_pos.m[0][0], m_pos.m[0][1], m_pos.m[0][2], m_pos.m[0][3]);
+			printf("m_pos[1][n]->%f,%f,%f,%f\n", m_pos.m[1][0], m_pos.m[1][1], m_pos.m[1][2], m_pos.m[1][3]);
+			printf("m_pos[2][n]->%f,%f,%f,%f\n", m_pos.m[2][0], m_pos.m[2][1], m_pos.m[2][2], m_pos.m[2][3]);
+			printf("m_pos[3][n]->%f,%f,%f,%f\n", m_pos.m[3][0], m_pos.m[3][1], m_pos.m[3][2], m_pos.m[3][3]);
 
 
 			return m_pos;
@@ -98,7 +109,6 @@ namespace DXLIB_VR {
 			m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
 			m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
 			m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
-
 
 			return m_pos;
 		}
@@ -130,6 +140,10 @@ namespace DXLIB_VR {
 		MTranspose(m_pos);
 
 		return m_pos;
+	}
+
+	Matrix4 GetContolloer() {
+		return m_rmat4DevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
 	}
 
 
@@ -181,11 +195,11 @@ namespace DXLIB_VR {
 		MATRIX4_PRINT(m_mat4HMDPose);
 		if (nEye == vr::Eye_Left)
 		{
-			matMVP = m_mat4eyePosLeft * m_mat4HMDPose;
+			matMVP = m_mat4ProjectionLeft * m_mat4eyePosLeft * m_mat4HMDPose;
 		}
 		else if (nEye == vr::Eye_Right)
 		{
-			matMVP = m_mat4eyePosRight * m_mat4HMDPose;
+			matMVP = m_mat4ProjectionLeft * m_mat4eyePosRight * m_mat4HMDPose;
 		}
 
 		return matMVP;
@@ -203,7 +217,7 @@ namespace DXLIB_VR {
 
 		m_iValidPoseCount = 0;
 		m_strPoseClasses = "";
-		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
+		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)   
 		{
 			
 			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
@@ -211,7 +225,7 @@ namespace DXLIB_VR {
 				m_iValidPoseCount++;
 				m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
 
-				printf("m_rTrackedDevicePose[%d]\n", nDevice);
+				printf("m_rmat4DevicePose[%d]\n", nDevice);
 				MATRIX4_PRINT(m_rmat4DevicePose[nDevice]);
 				if (m_rDevClassChar[nDevice] == 0)
 				{

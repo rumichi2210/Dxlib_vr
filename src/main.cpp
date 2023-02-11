@@ -16,7 +16,7 @@ void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX cmaraPos,MATRIX pro)
 	ClearDrawScreen();
 	SetCameraScreenCenter(DXLIB_VR::GetHMDWidth()/2.0f, DXLIB_VR::GetHMDHeight()/2.0f); //ƒJƒƒ‰‚ªŒ©‚Ä‚¢‚é‰f‘œ‚Ì’†SÀ•W‚ğÄİ’è
 	SetCameraNearFar(0.1f, 15000.0f);
-	SetTransformToProjection(&pro);
+	//SetTransformToProjection(&pro);
 	SetCameraViewMatrix(cmaraPos);
 	MV1DrawModel(stage);
 	SetDrawScreen(DX_SCREEN_BACK);//•`‰ææ‚ğŒ³‚É–ß‚·

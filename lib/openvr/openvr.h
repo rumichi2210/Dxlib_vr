@@ -218,9 +218,9 @@ enum ETrackedDeviceClass
 	TrackedDeviceClass_Invalid = 0,				// the ID was not valid.
 	TrackedDeviceClass_HMD = 1,					// Head-Mounted Displays
 	TrackedDeviceClass_Controller = 2,			// Tracked controllers
-	TrackedDeviceClass_GenericTracker = 3,		// Generic trackers, similar to controllers
-	TrackedDeviceClass_TrackingReference = 4,	// Camera and base stations that serve as tracking reference points
-	TrackedDeviceClass_DisplayRedirect = 5,		// Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
+	TrackedDeviceClass_GenericTracker = 3,		// コントローラに似た汎用トラッカー
+	TrackedDeviceClass_TrackingReference = 4,	// トラッキングの基準点となるカメラと基地局
+	TrackedDeviceClass_DisplayRedirect = 5,		// 必ずしもそれ自体がトラッキングされるわけではないが、他のトラッキングされる機器からのビデオ出力をリダイレクトすることができるアクセサリー
 
 	TrackedDeviceClass_Max
 };
@@ -239,7 +239,7 @@ enum ETrackedControllerRole
 };
 
 
-/** Returns true if the tracked controller role is allowed to be a hand */
+/**追跡されたコントローラのロールがハンドとして許可されている場合、true を返します。 */
 inline bool IsRoleAllowedAsHand( ETrackedControllerRole eRole )
 {
 	switch ( eRole )
@@ -2239,10 +2239,10 @@ public:
 	*/
 	virtual void ApplyTransform( TrackedDevicePose_t *pOutputPose, const TrackedDevicePose_t *pTrackedDevicePose, const HmdMatrix34_t *pTransform ) = 0;
 
-	/** Returns the device index associated with a specific role, for example the left hand or the right hand. This function is deprecated in favor of the new IVRInput system. */
+	/** 特定の役割（例えば左手や右手）に関連するデバイスのインデックスを返す。この関数は、新しい IVRInput システムに対応するため、非推奨とする。. */
 	virtual vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForControllerRole( vr::ETrackedControllerRole unDeviceType ) = 0;
 
-	/** Returns the controller type associated with a device index. This function is deprecated in favor of the new IVRInput system. */
+	/** デバイスインデックスに関連付けられたコントローラタイプを返します。この関数は、新しい IVRInput システムに対応するため、非推奨とします。 */
 	virtual vr::ETrackedControllerRole GetControllerRoleForTrackedDeviceIndex( vr::TrackedDeviceIndex_t unDeviceIndex ) = 0;
 
 	// ------------------------------------

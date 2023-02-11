@@ -153,14 +153,14 @@ void ConsoleUpdate(int flag) {
 
 
 
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);//カーソールの位置を取得
-	
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COL_CYAN);        // 描画文字をシアンに変更
-	
-	/*FpsMeasurement();*/
+	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);//カーソールの位置を取得
+	//
+	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COL_CYAN);        // 描画文字をシアンに変更
+	//
+	///*FpsMeasurement();*/
 
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,info.dwCursorPosition.Y });
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COL_WHITE);        // 描画文字を白に変更
+	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,info.dwCursorPosition.Y });
+	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), COL_WHITE);        // 描画文字を白に変更
 #endif // DEBUG
 }
 
