@@ -1,5 +1,8 @@
 #include "vr.hpp"
 
+#include <iostream>
+#define VAR_NAME(var) printf_s( "\n--------"#var "--------\n" )
+
 Matrix4 m_mat4HMDPose;
 Matrix4 m_mat4eyePosLeft;
 Matrix4 m_mat4eyePosRight;
@@ -36,6 +39,8 @@ namespace DXLIB_VR {
 			return false;
 		}
 		Get_RecommendedRenderTargetSize(m_pHMD, &hmdWidth, &hmdHeight);
+		printf("HMDWidth=%d\n", DXLIB_VR::GetHMDWidth());
+		printf("HMDHeight=%d\n", DXLIB_VR::GetHMDHeight());
 		SetupCameras();
 		return true;
 	}
@@ -56,7 +61,43 @@ namespace DXLIB_VR {
 		}
 	}
 
-	MATRIX GetEyeMat(vr::EVREye eye) {
+	void MATRIX4_Print(Matrix4 val) {
+		const float* pos = val.get();
+		for (int i = 0; i < 16; i++) {
+			printf("pos[%d]=%f\n", i, pos[i]);
+		}
+	}
+
+	void MATRIX_Print(MATRIX val) {
+		printf("val[0][n]->%f,%f,%f,%f\n", val.m[0][0], val.m[0][1], val.m[0][2], val.m[0][3]);
+		printf("val[1][n]->%f,%f,%f,%f\n", val.m[1][0], val.m[1][1], val.m[1][2], val.m[1][3]);
+		printf("val[2][n]->%f,%f,%f,%f\n", val.m[2][0], val.m[2][1], val.m[2][2], val.m[2][3]);
+		printf("val[3][n]->%f,%f,%f,%f\n", val.m[3][0], val.m[3][1], val.m[3][2], val.m[3][3]);
+	}
+
+
+	MATRIX GetProjectMat(vr::EVREye eye) {
+		Matrix4 matMVP;
+		if (eye == vr::EVREye::Eye_Left) {
+			matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left);
+		}
+		else {
+			matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Right);
+		}
+		const float* pos = matMVP.get();
+		MATRIX m_pos;
+		m_pos.m[0][0] = pos[0]; m_pos.m[0][1] = pos[1]; m_pos.m[0][2] = pos[2]; m_pos.m[0][3] = pos[3];
+		m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
+		m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
+		m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
+
+		VAR_NAME(m_pos);
+		MATRIX_Print(m_pos);
+
+		return m_pos;
+	}
+
+	MATRIX GetViewMat(vr::EVREye eye) {
 
 		Matrix4 matMVP;
 		if (eye == vr::EVREye::Eye_Left) {
@@ -70,29 +111,22 @@ namespace DXLIB_VR {
 
 				printf("unTrackedDevice=%d->type<%c>\n", unTrackedDevice, m_rDevClassChar[unTrackedDevice]);
 				const Matrix4& matDeviceToTracking = m_rmat4DevicePose[unTrackedDevice];
-				printf("matDeviceToTracking\n");
-				MATRIX4_PRINT(matDeviceToTracking);
+				VAR_NAME(matDeviceToTracking);
+				MATRIX4_Print(matDeviceToTracking);
 				matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left) * matDeviceToTracking;
-				printf("GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left)\n");
-				MATRIX4_PRINT(GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left));
 			}
-			//matMVP = m_mat4eyePosLeft * m_mat4HMDPose * m_rmat4DevicePose[0];
 			const float* pos = matMVP.get();
 			MATRIX m_pos;
 			m_pos.m[0][0] = pos[0]; m_pos.m[0][1] = pos[1]; m_pos.m[0][2] = pos[2]; m_pos.m[0][3] = pos[3];
 			m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
 			m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
 			m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
-
-			printf("m_pos[0][n]->%f,%f,%f,%f\n", m_pos.m[0][0], m_pos.m[0][1], m_pos.m[0][2], m_pos.m[0][3]);
-			printf("m_pos[1][n]->%f,%f,%f,%f\n", m_pos.m[1][0], m_pos.m[1][1], m_pos.m[1][2], m_pos.m[1][3]);
-			printf("m_pos[2][n]->%f,%f,%f,%f\n", m_pos.m[2][0], m_pos.m[2][1], m_pos.m[2][2], m_pos.m[2][3]);
-			printf("m_pos[3][n]->%f,%f,%f,%f\n", m_pos.m[3][0], m_pos.m[3][1], m_pos.m[3][2], m_pos.m[3][3]);
-
-
+			VAR_NAME(m_pos);
+			MATRIX_Print(m_pos);
 			return m_pos;
 		}
-		if (eye == vr::EVREye::Eye_Right) {
+		else
+		{
 			for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
 			{
 
@@ -191,15 +225,15 @@ namespace DXLIB_VR {
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	{
 		Matrix4 matMVP;
-		printf("m_mat4HMDPose\n");
-		MATRIX4_PRINT(m_mat4HMDPose);
+		VAR_NAME(m_mat4HMDPose);
+		MATRIX4_Print(m_mat4HMDPose);
 		if (nEye == vr::Eye_Left)
 		{
 			matMVP = m_mat4ProjectionLeft * m_mat4eyePosLeft * m_mat4HMDPose;
 		}
 		else if (nEye == vr::Eye_Right)
 		{
-			matMVP = m_mat4ProjectionLeft * m_mat4eyePosRight * m_mat4HMDPose;
+			matMVP = m_mat4ProjectionRight * m_mat4eyePosRight * m_mat4HMDPose;
 		}
 
 		return matMVP;
@@ -217,16 +251,15 @@ namespace DXLIB_VR {
 
 		m_iValidPoseCount = 0;
 		m_strPoseClasses = "";
-		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)   
+		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
-			
+
 			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 			{
 				m_iValidPoseCount++;
 				m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-
-				printf("m_rmat4DevicePose[%d]\n", nDevice);
-				MATRIX4_PRINT(m_rmat4DevicePose[nDevice]);
+				VAR_NAME(m_rmat4DevicePose[nDevice]);
+				MATRIX4_Print(m_rmat4DevicePose[nDevice]);
 				if (m_rDevClassChar[nDevice] == 0)
 				{
 					switch (m_pHMD->GetTrackedDeviceClass(nDevice))
@@ -264,12 +297,6 @@ namespace DXLIB_VR {
 		return matrixObj;
 	}
 
-	void MATRIX4_PRINT(Matrix4 val) {
-		const float* pos = val.get();
-		for (int i = 0; i < 16; i++) {
-			printf("pos[%d]=%f\n", i, pos[i]);
-		}
-	}
 
 	//-----------------------------------------------------------------------------
 	// Purpose:
@@ -277,13 +304,17 @@ namespace DXLIB_VR {
 	void SetupCameras()
 	{
 		m_mat4ProjectionLeft = GetHMDMatrixProjectionEye(vr::Eye_Left);
-		printf("m_mat4ProjectionLef\n");
-		MATRIX4_PRINT(m_mat4ProjectionLeft);
+		VAR_NAME(m_mat4ProjectionLeft);
+		MATRIX4_Print(m_mat4ProjectionLeft);
 		m_mat4ProjectionRight = GetHMDMatrixProjectionEye(vr::Eye_Right);
+		VAR_NAME(m_mat4ProjectionRight);
+		MATRIX4_Print(m_mat4ProjectionRight);
 		m_mat4eyePosLeft = GetHMDMatrixPoseEye(vr::Eye_Left);
-		printf("m_mat4eyePosLeft\n");
-		MATRIX4_PRINT(m_mat4eyePosLeft);
+		VAR_NAME(m_mat4eyePosLeft);
+		MATRIX4_Print(m_mat4eyePosLeft);
 		m_mat4eyePosRight = GetHMDMatrixPoseEye(vr::Eye_Right);
+		VAR_NAME(m_mat4eyePosRight);
+		MATRIX4_Print(m_mat4eyePosRight);
 	}
 
 

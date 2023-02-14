@@ -10,15 +10,12 @@ namespace DXLIB_VR {
 	bool Init();
 	void Fin();
 	void putTex(ID3D11Texture2D* texte, vr::EVREye eye);
-	MATRIX GetEyeMat(vr::EVREye eye);
+	MATRIX GetViewMat(vr::EVREye eye);
+	MATRIX GetProjectMat(vr::EVREye eye);
 	void updateVRState();
 	void render();
 	int GetHMDWidth();
 	int GetHMDHeight();
-
-	void MATRIX4_PRINT(Matrix4 val);
-
-	MATRIX GetDXProjectionMatrix(vr::Hmd_Eye nEye);
 
 	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
 	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
