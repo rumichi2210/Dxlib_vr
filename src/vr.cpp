@@ -77,19 +77,21 @@ namespace DXLIB_VR {
 
 
 	MATRIX GetProjectMat(vr::EVREye eye) {
-		Matrix4 matMVP;
-		if (eye == vr::EVREye::Eye_Left) {
-			matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Left);
-		}
-		else {
-			matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Right);
-		}
-		const float* pos = matMVP.get();
+		float fLeft, fRight, fTop, fBottom;
+
+		m_pHMD->GetProjectionRaw(eye, &fLeft, &fRight, &fTop, &fBottom);
+
+		float idx = 1.0f / (fRight - fLeft);
+		float idy = 1.0f / (fBottom - fTop);
+		float idz = 1.0f / (m_fFarClip - m_fNearClip);
+		float sx = fRight + fLeft;
+		float sy = fBottom + fTop;
+
 		MATRIX m_pos;
-		m_pos.m[0][0] = pos[0]; m_pos.m[0][1] = pos[1]; m_pos.m[0][2] = pos[2]; m_pos.m[0][3] = pos[3];
-		m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
-		m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
-		m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
+		m_pos.m[0][0] = 2 * idx;	m_pos.m[0][1] = 0;			m_pos.m[0][2] = 0;									m_pos.m[0][3] = 0;
+		m_pos.m[1][0] = 0;			m_pos.m[1][1] = 2 * idy;	m_pos.m[1][2] = 0;									m_pos.m[1][3] = 0;
+		m_pos.m[2][0] = -sx * idx;  m_pos.m[2][1] = -sy * idy;	m_pos.m[2][2] = m_fFarClip * idz;					m_pos.m[2][3] = 1.0f;
+		m_pos.m[3][0] = 0;			m_pos.m[3][1] = 0;			m_pos.m[3][2] = -m_fFarClip * m_fNearClip * idz;	m_pos.m[3][3] = 0;
 
 		VAR_NAME(m_pos);
 		MATRIX_Print(m_pos);
@@ -97,14 +99,31 @@ namespace DXLIB_VR {
 		return m_pos;
 	}
 
+
+	void ProjectionRawPrint(vr::EVREye eye) {
+		eye == vr::EVREye::Eye_Left ? printf("-----Eye_Left-----") : printf("-----Eye_Right-----");
+		float pfLeft;
+		float pfRight;
+		float pfTop;
+		float pfBottom;
+		m_pHMD->GetProjectionRaw(eye, &pfLeft, &pfRight, &pfTop, &pfBottom);
+		VAR_NAME(pfLeft);
+		printf("%f", pfLeft);
+		VAR_NAME(pfRight);
+		printf("%f", pfRight);
+		VAR_NAME(pfTop);
+		printf("%f", pfTop);
+		VAR_NAME(pfBottom);
+		printf("%f", pfBottom);
+	}
+
 	MATRIX GetViewMat(vr::EVREye eye) {
 
 		Matrix4 matMVP;
 		if (eye == vr::EVREye::Eye_Left) {
-
+			ProjectionRawPrint(eye);
 			for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
 			{
-
 				const vr::TrackedDevicePose_t& pose = m_rTrackedDevicePose[unTrackedDevice];
 				if (!pose.bPoseIsValid)
 					continue;
@@ -127,14 +146,17 @@ namespace DXLIB_VR {
 		}
 		else
 		{
+			ProjectionRawPrint(eye);
 			for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
 			{
 
 				const vr::TrackedDevicePose_t& pose = m_rTrackedDevicePose[unTrackedDevice];
 				if (!pose.bPoseIsValid)
 					continue;
-
+				printf("unTrackedDevice=%d->type<%c>\n", unTrackedDevice, m_rDevClassChar[unTrackedDevice]);
 				const Matrix4& matDeviceToTracking = m_rmat4DevicePose[unTrackedDevice];
+				VAR_NAME(matDeviceToTracking);
+				MATRIX4_Print(matDeviceToTracking);
 				matMVP = GetCurrentViewProjectionMatrix(vr::EVREye::Eye_Right) * matDeviceToTracking;
 			}
 			const float* pos = matMVP.get();
@@ -143,7 +165,8 @@ namespace DXLIB_VR {
 			m_pos.m[1][0] = pos[4]; m_pos.m[1][1] = pos[5]; m_pos.m[1][2] = pos[6]; m_pos.m[1][3] = pos[7];
 			m_pos.m[2][0] = pos[8]; m_pos.m[2][1] = pos[9]; m_pos.m[2][2] = pos[10]; m_pos.m[2][3] = pos[11];
 			m_pos.m[3][0] = pos[12]; m_pos.m[3][1] = pos[13]; m_pos.m[3][2] = pos[14]; m_pos.m[3][3] = pos[15];
-
+			VAR_NAME(m_pos);
+			MATRIX_Print(m_pos);
 			return m_pos;
 		}
 	}
@@ -225,19 +248,20 @@ namespace DXLIB_VR {
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	{
 		Matrix4 matMVP;
-		VAR_NAME(m_mat4HMDPose);
-		MATRIX4_Print(m_mat4HMDPose);
+		//VAR_NAME(m_mat4HMDPose);
+		//MATRIX4_Print(m_mat4HMDPose);
 		if (nEye == vr::Eye_Left)
 		{
-			matMVP = m_mat4ProjectionLeft * m_mat4eyePosLeft * m_mat4HMDPose;
+			matMVP = m_mat4eyePosLeft * m_mat4HMDPose;
 		}
 		else if (nEye == vr::Eye_Right)
 		{
-			matMVP = m_mat4ProjectionRight * m_mat4eyePosRight * m_mat4HMDPose;
+			matMVP = m_mat4eyePosRight * m_mat4HMDPose;
 		}
 
 		return matMVP;
 	}
+
 
 	//-----------------------------------------------------------------------------
 	// Purpose:

@@ -18,20 +18,19 @@ RECT WindowRect;
 FILE* fp;
 
 
-void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view,MATRIX projection)
+void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection)
 {
 	if (nEye == vr::Eye_Right) { SetDrawScreen(vrEyeRight); }
 	if (nEye == vr::Eye_Left) { SetDrawScreen(vrEyeLeft); }
 	ClearDrawScreenZBuffer();
 	ClearDrawScreen();
-	SetCameraScreenCenter(DXLIB_VR::GetHMDWidth()/2.0f, DXLIB_VR::GetHMDHeight()/2.0f); //カメラが見ている映像の中心座標を再設定
-	SetCameraNearFar(0.1f, 15000.0f);
-	//SetTransformToProjection(&projection);
-	//SetupCamera_ProjectionMatrix(projection);//<-Direct X 11用のサンプルはプロジェクションだけ送っている？(projectionを設定した場合は表示不可になってしまう)
+	SetCameraScreenCenter(DXLIB_VR::GetHMDWidth() / 2.0f, DXLIB_VR::GetHMDHeight() / 2.0f); //カメラが見ている映像の中心座標を再設定
+	SetupCamera_ProjectionMatrix(projection);
 	SetCameraViewMatrix(view);
 	MV1DrawModel(stage);
 	SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
 }
+
 
 void InitConsole() {
 	AllocConsole();
