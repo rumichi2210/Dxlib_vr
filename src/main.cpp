@@ -20,13 +20,13 @@ RECT WindowRect;
 FILE* fp;
 
 
-void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection)
+void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float cameraScreenCenterX, float cameraScreenCenterY)
 {
 	if (nEye == vr::Eye_Right) { DxLib::SetDrawScreen(vrEyeRight); }
 	if (nEye == vr::Eye_Left) { DxLib::SetDrawScreen(vrEyeLeft); }
 	DxLib::ClearDrawScreenZBuffer();
 	DxLib::ClearDrawScreen();
-	DxLib::SetCameraScreenCenter(DXLIB_VR::GetHMDWidth() / 2.0f, DXLIB_VR::GetHMDHeight() / 2.0f); //カメラが見ている映像の中心座標を再設定
+	DxLib::SetCameraScreenCenter(cameraScreenCenterX, cameraScreenCenterY); //カメラが見ている映像の中心座標を再設定
 	DxLib::SetupCamera_ProjectionMatrix(projection);
 	DxLib::SetCameraViewMatrix(view);
 	DxLib::MV1DrawModel(stage);
@@ -66,26 +66,29 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	if (DxLib::SetDrawScreen(DX_SCREEN_BACK) == -1) { return 0; } //描画画面を裏画面に設定
 	if (DxLib::SetUseZBuffer3D(TRUE) == -1) { return 0; }// Zバッファを有効にする。
 	if (DxLib::SetWriteZBuffer3D(TRUE) == -1) { return 0; }// Zバッファへの書き込みを有効にする。
-	
-	InitConsole();
 
-	if (DXLIB_VR::Init()==false){
-		while(CheckHitKey(KEY_INPUT_F12) == 0) {}
+
+
+	InitConsole();
+	OpenvrForDXLib* vrHandler = new OpenvrForDXLib();
+	if (!vrHandler) {
+		while (CheckHitKey(KEY_INPUT_F12) == 0) {}
 		DxLib::DxLib_End();
 		return 0;
 	}
+
 	int MultiSamplBit = 16;
 	printf("SampleQualityMAX->%d", DxLib::GetMultiSampleQuality(MultiSamplBit));
 	DxLib::SetCreateDrawValidGraphMultiSample(MultiSamplBit, 16);
-	vrEyeRight = DxLib::MakeScreen(DXLIB_VR::GetHMDWidth(), DXLIB_VR::GetHMDHeight(), FALSE);
-	vrEyeLeft = DxLib::MakeScreen(DXLIB_VR::GetHMDWidth(), DXLIB_VR::GetHMDHeight(), FALSE);
+	vrEyeRight = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
+	vrEyeLeft = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 
 	stage = DxLib::MV1LoadModel(".\\res\\mmd_batokin_island\\batokin_island5.x");
 	for (int i = 0; i < DxLib::MV1GetMeshNum(stage); i++)
 	{
 		DxLib::MV1SetMeshBackCulling(stage, i, DX_CULLING_RIGHT);
 	}
-	DxLib::MV1SetScale(stage,VGet(3.0f, 3.0f, 3.0f));
+	DxLib::MV1SetScale(stage, VGet(3.0f, 3.0f, 3.0f));
 	DxLib::MV1SetPosition(stage, VGet(0.0f, 0.0f, 0.0f));
 
 	cont = DxLib::MV1LoadModel(".\\res\\vive_ Controler.mv1");
@@ -106,19 +109,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
-		// falseならトラッキングデータを継続的に解析し、trueならopenvrのイベントが発生したときに解析します。
-		DXLIB_VR::RunProcedure(false);
-		DXLIB_VR::updateVRState();
+		vrHandler->UdateState();
 		//DxLib::MV1SetMatrix(cont, DxLib::MMult(DxLib::MGetScale(DxLib::VGet(0.01f,0.01f,0.01f)),DXLIB_VR::GetContolloer()));
 
-		DrawSphere3D(DXLIB_VR::GetLeftContolloer(), 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
-		UpdateCameraScreen(vr::Eye_Right, DXLIB_VR::GetViewMat(vr::Eye_Right), DXLIB_VR::GetProjectiontMat(vr::Eye_Right));
-		UpdateCameraScreen(vr::Eye_Left, DXLIB_VR::GetViewMat(vr::Eye_Left), DXLIB_VR::GetProjectiontMat(vr::Eye_Left));
-		DXLIB_VR::putTex((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
-		DXLIB_VR::putTex((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeLeft), vr::Eye_Left);
-			 
+		//DrawSphere3D(DXLIB_VR::GetLeftContolloer(), 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
+		UpdateCameraScreen(vr::Eye_Right, vrHandler->GetViewMatrix(vr::Eye_Right), vrHandler->GetProjectionMatrix(vr::Eye_Right), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
+		UpdateCameraScreen(vr::Eye_Left, vrHandler->GetViewMatrix(vr::Eye_Left), vrHandler->GetProjectionMatrix(vr::Eye_Left), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
+		vrHandler->PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
+		vrHandler->PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeLeft), vr::Eye_Left);
+
 		DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
-		DxLib::SetCameraScreenCenter(1280,720);
+		DxLib::SetCameraScreenCenter(1280, 720);
 		DxLib::MV1DrawModel(stage);
 		//DxLib::MV1DrawModel(cont);
 
@@ -131,11 +132,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 			FPSTime = NowTime;
 		}
 		DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS:%d", DispFPS);
-
-		DXLIB_VR::render();
 	}
 
-	DXLIB_VR::Fin();
+	delete vrHandler;
 
 	DxLib::DxLib_End();
 

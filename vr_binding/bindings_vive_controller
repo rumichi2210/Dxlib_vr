@@ -41,15 +41,15 @@
          ]
       },
       "/actions/main" : {
-         "chords" : [ {}, {}, {}, {} ],
+         "chords" : [],
          "poses" : [
             {
-               "output" : "/actions/main/in/Controller_Left",
-               "path" : "/user/hand/left/pose/raw"
+               "output" : "/actions/main/in/controller_right",
+               "path" : "/user/hand/left/pose/base"
             },
             {
-               "output" : "/actions/main/in/Controller_Right",
-               "path" : "/user/hand/right/pose/raw"
+               "output" : "none",
+               "path" : "/user/hand/right/pose/base"
             }
          ],
          "sources" : [
@@ -96,7 +96,7 @@
    "controller_type" : "vive_controller",
    "description" : "Default Vive Controller bindings for openvr_tracking_example.",
    "interaction_profile" : "",
-   "name" : "Vive Controller用のDxlib_vr設定",
+   "name" : "Vive Controller用に保存されたDxlib_vr設定",
    "options" : {
       "simulated_controller_type" : "vive_controller"
    },

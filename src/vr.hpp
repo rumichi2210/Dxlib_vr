@@ -9,29 +9,7 @@
 
 
 namespace DXLIB_VR {
-	bool Init();
-	void Fin();
-	void putTex(ID3D11Texture2D* texte, vr::EVREye eye);
-	MATRIX GetProjectiontMat(vr::EVREye eye);
-	void updateVRState();
-	void render();
-	int GetHMDWidth();
-	int GetHMDHeight();
 
-	MATRIX GetContolloer();
-	VECTOR GetLeftContolloer();
-	MATRIX GetViewMat(vr::EVREye eye);
-
-	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
-	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
-	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
-	Matrix4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& matPose);
-	void UpdateHMDMatrixPose();
-	void SetupCameras();
-	void Get_RecommendedRenderTargetSize(vr::IVRSystem* HMD, uint32_t* pnWidth, uint32_t* pnHeight);
-
-	void PrintDevices();
-	bool RunProcedure(bool bWaitForEvents, int filterIndex = -1);
 }
 
 class OpenvrForDXLib {
@@ -39,35 +17,45 @@ private:
 
 	// 基本的なもの
 	vr::IVRSystem* m_pHMD = NULL;
+	vr::EVRInitError error = vr::VRInitError_None;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 	uint32_t hmdWidth;
 	uint32_t hmdHeight;
+	Matrix4 m_mat4eyePosLeft;
+	Matrix4 m_mat4eyePosRight;
+	Matrix4 m_mat4ProjectionCenter;
+	Matrix4 m_mat4ProjectionLeft;
+	Matrix4 m_mat4ProjectionRight;
+	float m_fNearClip = 0.1f;
+	float m_fFarClip = 15000.0f;
 
 	// For getting the steam application key
 	char applicationKey[vr::k_unMaxApplicationKeyLength];
 
 	// 新しいIVRInputのためのハンドル
 	vr::VRActionSetHandle_t m_actionSet = vr::k_ulInvalidActionSetHandle;
-	const char* actionSetPath = "/actions";
+	const char* actionSetPath = "/actions/main";
 
 	vr::VRActionHandle_t m_actionSelect = vr::k_ulInvalidActionHandle;
-	const char* actionSelectPath = "/actions/in/Select";
+	const char* actionSelectPath = "/actions/main/in/Select";
 
 	vr::VRActionHandle_t m_actionMove = vr::k_ulInvalidActionHandle;
-	const char* actionMovePath = "/actions/in/Move";
+	const char* actionMovePath = "/actions/main/in/Move";
 
 	vr::VRActionHandle_t m_actionCancel = vr::k_ulInvalidActionHandle;
-	const char* actionCancelPath = "/actions/in/Cancel";
+	const char* actionCancelPath = "/actions/main/in/Cancel";
 
 	vr::VRActionHandle_t m_actionDecision = vr::k_ulInvalidActionHandle;
-	const char* actionDecisionPath = "/actions/in/Decision";
+	const char* actionDecisionPath = "/actions/main/in/Decision";
 
 	vr::VRActionHandle_t m_actionControllerLeft = vr::k_ulInvalidActionHandle;
-	const char* actionControllerLeftPath = "/actions/in/Controller_Left";
+	const char* actionControllerLeftPath = "/actions/main/in/Controller_Left";
+	vr::InputPoseActionData_t controllerLeftPoseData;
 
 	vr::VRActionHandle_t m_actionControllerRight = vr::k_ulInvalidActionHandle;
-	const char* actionControllerRightPath = "/actions/in/Controller_Right";
+	const char* actionControllerRightPath = "/actions/main/in/Controller_Right";
+	vr::InputPoseActionData_t controllerRightPoseData;
 
 	vr::VRInputValueHandle_t m_inputHandLeftPath = vr::k_ulInvalidInputValueHandle;
 	const char* inputHandLeftPath = "/user/hand/left";
@@ -80,13 +68,36 @@ private:
 		return (stat(fileName.c_str(), &buff) == 0);
 	}
 
+	//HMDの画面サイズ(片目)を取得
+	void GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight) { m_pHMD->GetRecommendedRenderTargetSize(pnWidth, pnHeight); }
 
+
+	// Purpose: nEyeを基準としたMatrix Projection Eyeを取得します。
+	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
+
+
+	// Purpose: nEyeを基準としたHMDMatrixPoseEyeを取得します。
+	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
+
+	// VRコンポジターの初期化
+	bool BInitCompositor();
+
+	//HMD用のカメラの準備をします
+	void SetupCameras();
+
+	Matrix4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& matPose);
+	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
+	void UpdateHMDMatrixPose();
+
+	//接続機器の情報をCUIに一括表示
+	void DeviceInformationBatchDisplay();
 public:
 	OpenvrForDXLib();
 	~OpenvrForDXLib();
 
-	// VRコンポジターの初期化
-	bool BInitCompositor();
+
+
+
 
 	// openvr のイベントをリッスンし、process と parse のルーチンを呼び出すメインループ、もし false ならばサービスは終了している
 	bool RunProcedure(bool bWaitForEvents, int filterIndex);
@@ -103,8 +114,21 @@ public:
 	vr::HmdVector3_t GetLeftControllerPosition();
 	vr::HmdVector3_t GetRightControllerPosition();
 
-	// デバイスの情報を印刷する
-	void PrintDevices();
+
+	//vr::VRActionHandle_tで定義したものしか使用できません
+	void GetActionHandleCheck(const char* pchActionName, vr::VRActionHandle_t* pHandle);
+
+	MATRIX GetProjectionMatrix(vr::EVREye eye);
+	MATRIX GetViewMatrix(vr::EVREye eye);
+	//MATRIX GetProjectionMatrix(vr::Hmd_Eye nEye);
+	int GetHMDWidth() { return hmdWidth; }
+	int GetHMDHeight() { return hmdHeight; }
+	//HMDで描画する
+	void PutHMD(ID3D11Texture2D* texte, vr::EVREye eye);
+
+	//デバイスの状態を一括で取り込む
+	void UdateState();
+
 };
 
 
