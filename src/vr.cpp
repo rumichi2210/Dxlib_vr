@@ -26,8 +26,8 @@ int m_iTrackedControllerCount_Last;
 int m_iValidPoseCount;
 int m_iValidPoseCount_Last;
 unsigned int m_uiControllerVertcount;
-std::string m_strPoseClasses;                            // what classes we saw poses for this frame
-char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class
+std::string m_strPoseClasses;                            // このフレームのポーズを見たとき
+char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // 各デバイスについて、そのクラスを表す文字
 
 
 namespace DXLIB_VR {
@@ -76,7 +76,7 @@ namespace DXLIB_VR {
 	}
 
 
-	MATRIX GetProjectMat(vr::EVREye eye) {
+	MATRIX GetProjectiontMat(vr::EVREye eye) {
 		float fLeft, fRight, fTop, fBottom;
 
 		m_pHMD->GetProjectionRaw(eye, &fLeft, &fRight, &fTop, &fBottom);
@@ -87,15 +87,11 @@ namespace DXLIB_VR {
 		float sx = fRight + fLeft;
 		float sy = fBottom + fTop;
 
-		MATRIX m_pos;
+		MATRIX m_pos{};
 		m_pos.m[0][0] = 2 * idx;	m_pos.m[0][1] = 0;			m_pos.m[0][2] = 0;									m_pos.m[0][3] = 0;
 		m_pos.m[1][0] = 0;			m_pos.m[1][1] = 2 * idy;	m_pos.m[1][2] = 0;									m_pos.m[1][3] = 0;
-		m_pos.m[2][0] = -sx * idx;  m_pos.m[2][1] = -sy * idy;	m_pos.m[2][2] = m_fFarClip * idz;					m_pos.m[2][3] = 1.0f;
+		m_pos.m[2][0] = sx * idx;	m_pos.m[2][1] = sy * idy;	m_pos.m[2][2] = -m_fFarClip * idz;					m_pos.m[2][3] = -1.0f;
 		m_pos.m[3][0] = 0;			m_pos.m[3][1] = 0;			m_pos.m[3][2] = -m_fFarClip * m_fNearClip * idz;	m_pos.m[3][3] = 0;
-
-		VAR_NAME(m_pos);
-		MATRIX_Print(m_pos);
-
 		return m_pos;
 	}
 
@@ -115,6 +111,25 @@ namespace DXLIB_VR {
 		printf("%f", pfTop);
 		VAR_NAME(pfBottom);
 		printf("%f", pfBottom);
+	}
+
+	MATRIX GetViewMat2(vr::EVREye eye) {
+		Matrix4 matMVP;
+		for (uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++)
+		{
+			const vr::TrackedDevicePose_t& pose = m_rTrackedDevicePose[unTrackedDevice];
+			if (!pose.bPoseIsValid)
+				continue;
+			const Matrix4& matDeviceToTracking = m_rmat4DevicePose[unTrackedDevice];
+			matMVP = GetCurrentViewProjectionMatrix(eye);// *matDeviceToTracking;
+		}
+		const float* pos = matMVP.get();
+		MATRIX m_pos;
+		m_pos.m[0][0] = pos[0];		m_pos.m[0][1] = pos[1];		m_pos.m[0][2] = pos[2];		m_pos.m[0][3] = pos[3];
+		m_pos.m[1][0] = pos[4];		m_pos.m[1][1] = pos[5];		m_pos.m[1][2] = pos[6];		m_pos.m[1][3] = pos[7];
+		m_pos.m[2][0] = pos[8];		m_pos.m[2][1] = pos[9];		m_pos.m[2][2] = pos[10];	m_pos.m[2][3] = pos[11];
+		m_pos.m[3][0] = pos[12];	m_pos.m[3][1] = pos[13];	m_pos.m[3][2] = pos[14];	m_pos.m[3][3] = pos[15];
+		return m_pos;
 	}
 
 	MATRIX GetViewMat(vr::EVREye eye) {
@@ -195,12 +210,39 @@ namespace DXLIB_VR {
 		m_pos.m[3][0] = mat.m[3][0]; m_pos.m[3][1] = mat.m[3][1]; m_pos.m[3][2] = mat.m[3][2]; m_pos.m[3][3] = mat.m[3][3];
 
 		MTranspose(m_pos);
-
+		
 		return m_pos;
 	}
 
-	Matrix4 GetContolloer() {
-		return m_rmat4DevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
+	MATRIX GetContolloer() {
+		const vr::TrackedDevicePose_t& pose = m_rTrackedDevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
+		/*if (!pose.bPoseIsValid)
+			continue;*/
+		const Matrix4& matDeviceToTracking = m_rmat4DevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
+		Matrix4 matMVP=m_rmat4DevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
+		matMVP.invert();
+		const float* pos = matDeviceToTracking.get();
+		MATRIX m_pos{};
+		m_pos.m[0][0] = pos[0];		m_pos.m[0][1] = pos[1];		m_pos.m[0][2] = pos[2];		m_pos.m[0][3] = pos[3];
+		m_pos.m[1][0] = pos[4];		m_pos.m[1][1] = pos[5];		m_pos.m[1][2] = pos[6];		m_pos.m[1][3] = pos[7];
+		m_pos.m[2][0] = pos[8];		m_pos.m[2][1] = pos[9];		m_pos.m[2][2] = pos[10];	m_pos.m[2][3] = pos[11];
+		m_pos.m[3][0] = pos[12];	m_pos.m[3][1] = pos[13];	m_pos.m[3][2] = pos[14];	m_pos.m[3][3] = pos[15];
+		return m_pos;
+	}
+
+	VECTOR GetLeftContolloer() {
+		vr::TrackedDevicePose_t tmp2;
+		vr::VRControllerState_t night;
+		m_pHMD->GetControllerStateWithPose(vr::TrackingUniverseStanding, 0, &night, &tmp2);
+		Matrix4 matMVP = m_rmat4DevicePose[m_pHMD->GetTrackedDeviceIndexForControllerRole(vr::TrackedControllerRole_LeftHand)];
+		matMVP.invert();
+		const float* pos = matMVP.get();
+		MATRIX m_pos{};
+		m_pos.m[0][0] = pos[0];		m_pos.m[0][1] = pos[1];		m_pos.m[0][2] = pos[2];		m_pos.m[0][3] = pos[3];
+		m_pos.m[1][0] = pos[4];		m_pos.m[1][1] = pos[5];		m_pos.m[1][2] = pos[6];		m_pos.m[1][3] = pos[7];
+		m_pos.m[2][0] = pos[8];		m_pos.m[2][1] = pos[9];		m_pos.m[2][2] = pos[10];	m_pos.m[2][3] = pos[11];
+		m_pos.m[3][0] = pos[12];	m_pos.m[3][1] = pos[13];	m_pos.m[3][1] = pos[14];	m_pos.m[3][3] = pos[15];
+		return VGet(m_pos.m[3][0], m_pos.m[3][1], -m_pos.m[3][1]);
 	}
 
 
@@ -248,8 +290,6 @@ namespace DXLIB_VR {
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 	{
 		Matrix4 matMVP;
-		//VAR_NAME(m_mat4HMDPose);
-		//MATRIX4_Print(m_mat4HMDPose);
 		if (nEye == vr::Eye_Left)
 		{
 			matMVP = m_mat4eyePosLeft * m_mat4HMDPose;
@@ -328,17 +368,9 @@ namespace DXLIB_VR {
 	void SetupCameras()
 	{
 		m_mat4ProjectionLeft = GetHMDMatrixProjectionEye(vr::Eye_Left);
-		VAR_NAME(m_mat4ProjectionLeft);
-		MATRIX4_Print(m_mat4ProjectionLeft);
 		m_mat4ProjectionRight = GetHMDMatrixProjectionEye(vr::Eye_Right);
-		VAR_NAME(m_mat4ProjectionRight);
-		MATRIX4_Print(m_mat4ProjectionRight);
 		m_mat4eyePosLeft = GetHMDMatrixPoseEye(vr::Eye_Left);
-		VAR_NAME(m_mat4eyePosLeft);
-		MATRIX4_Print(m_mat4eyePosLeft);
 		m_mat4eyePosRight = GetHMDMatrixPoseEye(vr::Eye_Right);
-		VAR_NAME(m_mat4eyePosRight);
-		MATRIX4_Print(m_mat4eyePosRight);
 	}
 
 

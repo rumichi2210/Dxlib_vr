@@ -2,7 +2,7 @@
 // 
 // 		‚c‚wƒ‰ƒCƒuƒ‰ƒŠ		ƒwƒbƒ_ƒtƒ@ƒCƒ‹
 // 
-// 				Ver 3.24 
+// 				Ver 3.24a
 // 
 // -------------------------------------------------------------------------------
 
@@ -12,9 +12,9 @@
 #include "DxCompileConfig.h"
 
 // ‚c‚wƒ‰ƒCƒuƒ‰ƒŠ‚Ìƒo[ƒWƒ‡ƒ“
-#define DXLIB_VERSION 0x3240
-#define DXLIB_VERSION_STR_T _T( "3.24 " )
-#define DXLIB_VERSION_STR_W    L"3.24 "
+#define DXLIB_VERSION 0x324a
+#define DXLIB_VERSION_STR_T _T( "3.24a" )
+#define DXLIB_VERSION_STR_W    L"3.24a"
 
 // İ’è -----------------------------------------------------------------------
 
@@ -2076,6 +2076,7 @@ extern 	int			AppLogAdd(				const TCHAR *String , ... ) ;					// LogFileFmtAdd ‚
 
 // ƒƒOo—Íİ’èŠÖ”
 extern	int			SetOutApplicationLogValidFlag(	          int Flag ) ;													// ƒƒOƒtƒ@ƒCƒ‹( Log.txt ) ‚ğì¬‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:ì¬‚·‚é( ƒfƒtƒHƒ‹ƒg )  FALSE:ì¬‚µ‚È‚¢ )ADxLib_Init ‚Ì‘O‚Å‚Ì‚İg—p‰Â”\@
+extern	int			SetOutApplicationSystemLogValidFlag(      int Flag ) ;													// ƒƒOƒtƒ@ƒCƒ‹( Log.txt ) ‚É‚c‚wƒ‰ƒCƒuƒ‰ƒŠ“à•”‚ÌƒƒOo—Í‚ğs‚¤‚©‚Ç‚¤‚©İ’è‚·‚é( TRUE:‚c‚wƒ‰ƒCƒuƒ‰ƒŠ“à•”‚ÌƒƒOo—Í‚ğs‚¤( ƒfƒtƒHƒ‹ƒg )  FALSE:‚c‚wƒ‰ƒCƒuƒ‰ƒŠ“à•”‚ÌƒƒOo—Í‚ğs‚í‚È‚¢ )
 extern	int			SetApplicationLogFileName(                const TCHAR *FileName ) ;										// ƒƒOƒtƒ@ƒCƒ‹‚Ì–¼‘O‚ğİ’è‚·‚é( Log.txt ˆÈŠO‚É‚µ‚½‚¢ê‡‚Ég—p )
 extern	int			SetApplicationLogFileNameWithStrLen(      const TCHAR *FileName, size_t FileNameLength ) ;				// ƒƒOƒtƒ@ƒCƒ‹‚Ì–¼‘O‚ğİ’è‚·‚é( Log.txt ˆÈŠO‚É‚µ‚½‚¢ê‡‚Ég—p )
 extern	int			SetApplicationLogSaveDirectory(	          const TCHAR *DirectoryPath ) ;								// ƒƒOƒtƒ@ƒCƒ‹( Log.txt ) ‚ğ•Û‘¶‚·‚éƒfƒBƒŒƒNƒgƒŠƒpƒX‚ğİ’è‚·‚é
@@ -2145,6 +2146,7 @@ extern	int			SetASyncLoadThreadNum(			int ThreadNum ) ;									// ”ñ“¯Šú“Ç‚İ‚
 extern	int			SetDeleteHandleFlag(		int Handle, int *DeleteFlag ) ;							// ƒnƒ“ƒhƒ‹‚ªíœ‚³‚ê‚½‚Æ‚«‚É|‚P‚ªİ’è‚³‚ê‚é•Ï”‚ğ“o˜^‚·‚é
 extern	int			GetHandleNum(				int HandleType /* DX_HANDLETYPE_GRAPH“™ */ ) ;			// w’è‚Ìƒ^ƒCƒv‚Ìƒnƒ“ƒhƒ‹‚Ì”‚ğæ“¾‚·‚é
 extern	int			GetMaxHandleNum(			int HandleType /* DX_HANDLETYPE_GRAPH“™ */ ) ;			// w’è‚Ìƒ^ƒCƒv‚Ìƒnƒ“ƒhƒ‹‚ªÅ‘å‚ÅŠô‚Âì¬‚Å‚«‚é‚©‚ğæ“¾‚·‚é
+extern	int			DumpHandleInfo(				int HandleType /* DX_HANDLETYPE_GRAPH“™ */ ) ;			// w’è‚Ìƒ^ƒCƒv‚Ì‘Sƒnƒ“ƒhƒ‹‚Ìî•ñ‚ğƒƒO‚Éo—Í‚·‚é
 
 
 
@@ -2161,6 +2163,7 @@ extern	int			GetMaxHandleNum(			int HandleType /* DX_HANDLETYPE_GRAPH“™ */ ) ;		
 
 // ƒ}ƒEƒXŠÖŒWŠÖ”
 extern	int			SetMouseDispFlag(		int DispFlag ) ;												// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚Ì•\¦ó‘Ô‚ğİ’è‚·‚é( DispFlag:ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚ğ•\¦‚·‚é‚©‚Ç‚¤‚©( TRUE:•\¦‚·‚é  FALSE:•\¦‚µ‚È‚¢ )
+extern	int			SetMouseDispIgnoreMenuFlag(	int IgnoreMenuFlag ) ;										// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚Ì•\¦ó‘Ô‚É‚Â‚¢‚Äƒƒjƒ…[‚Ì•\¦ó‘Ô‚ğ–³‹‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:ƒƒjƒ…[‚Ì•\¦ó‘Ô‚ğ–³‹‚·‚é  FALSE:ƒƒjƒ…[‚Ì•\¦ó‘Ô‚ğl—¶‚·‚é( ƒfƒtƒHƒ‹ƒg ) )
 #ifndef DX_NON_INPUT
 extern	int			GetMousePoint(			int *XBuf, int *YBuf ) ;										// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚ÌˆÊ’u‚ğæ“¾‚·‚é
 extern	int			SetMousePoint(			int PointX, int PointY ) ;										// ƒ}ƒEƒXƒ|ƒCƒ“ƒ^‚ÌˆÊ’u‚ğİ’è‚·‚é
@@ -2535,6 +2538,7 @@ extern	int			FileRead_open_WithStrLen(			const TCHAR *FilePath, size_t FilePathL
 extern	int			FileRead_open_mem(					const void *FileImage, size_t FileImageSize ) ;					// ƒƒ‚ƒŠ‚É“WŠJ‚³‚ê‚½ƒtƒ@ƒCƒ‹‚ğŠJ‚­
 extern	LONGLONG	FileRead_size(						const TCHAR *FilePath ) ;										// ƒtƒ@ƒCƒ‹‚ÌƒTƒCƒY‚ğæ“¾‚·‚é
 extern	LONGLONG	FileRead_size_WithStrLen(			const TCHAR *FilePath, size_t FilePathLength ) ;				// ƒtƒ@ƒCƒ‹‚ÌƒTƒCƒY‚ğæ“¾‚·‚é
+extern	LONGLONG	FileRead_size_handle(				int FileHandle ) ;												// ƒtƒ@ƒCƒ‹‚ÌƒTƒCƒY‚ğæ“¾‚·‚é( ƒtƒ@ƒCƒ‹ƒnƒ“ƒhƒ‹g—p”Å )
 extern	int			FileRead_close(						int FileHandle ) ;												// ƒtƒ@ƒCƒ‹‚ğ•Â‚¶‚é
 extern	LONGLONG	FileRead_tell(						int FileHandle ) ;												// ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^‚Ì“Ç‚İ‚İˆÊ’u‚ğæ“¾‚·‚é
 extern	int			FileRead_seek(						int FileHandle , LONGLONG Offset , int Origin ) ;				// ƒtƒ@ƒCƒ‹ƒ|ƒCƒ“ƒ^‚Ì“Ç‚İ‚İˆÊ’u‚ğ•ÏX‚·‚é
@@ -2603,7 +2607,9 @@ extern	int			GetJoypadType(							int InputType ) ;														// ƒWƒ‡ƒCƒpƒbƒh
 extern	int			GetJoypadXInputState(					int InputType, XINPUT_STATE *XInputState ) ;							// XInput ‚©‚ç“¾‚ç‚ê‚é“ü—ÍƒfƒoƒCƒX( Xbox360ƒRƒ“ƒgƒ[ƒ‰“™ )‚Ì¶‚Ìƒf[ƒ^‚ğæ“¾‚·‚é( XInput”ñ‘Î‰‚Ìƒpƒbƒh‚Ìê‡‚ÍƒGƒ‰[‚Æ‚È‚è -1 ‚ğ•Ô‚·ADX_INPUT_KEY ‚â DX_INPUT_KEY_PAD1 ‚È‚ÇAƒL[ƒ{[ƒh‚ª—‚Şƒ^ƒCƒv‚ğ InputType ‚É“n‚·‚ÆƒGƒ‰[‚Æ‚È‚è -1 ‚ğ•Ô‚· )
 extern	int			SetJoypadInputToKeyInput(				int InputType, int PadInput, int KeyInput1, int KeyInput2 DEFAULTPARAM( = -1 ) , int KeyInput3 DEFAULTPARAM( = -1 ) , int KeyInput4 DEFAULTPARAM( = -1 )  ) ; // ƒWƒ‡ƒCƒpƒbƒh‚Ì“ü—Í‚É‘Î‰‚µ‚½ƒL[ƒ{[ƒh‚Ì“ü—Í‚ğİ’è‚·‚é( InputType:İ’è‚ğ•ÏX‚·‚éƒpƒbƒh‚Ì¯•Êq( DX_INPUT_PAD1“™ )@@PadInput:İ’è‚ğ•ÏX‚·‚éƒpƒbƒhƒ{ƒ^ƒ“‚Ì¯•Êq( PAD_INPUT_1 “™ )@@KeyInput1:PadInput ‚ğ‰Ÿ‰º‚µ‚½‚±‚Æ‚É‚·‚éƒL[ƒR[ƒh( KEY_INPUT_A ‚È‚Ç )‚»‚Ì‚P@@KeyInput2:‚»‚Ì‚QA-1‚Åİ’è‚È‚µ@@KeyInput3:‚»‚Ì‚RA-1‚Åİ’è‚È‚µ@@KeyInput4:‚»‚Ì‚SA-1‚Åİ’è‚È‚µ )
 extern	int			SetJoypadDeadZone(						int InputType, double Zone ) ;											// ƒWƒ‡ƒCƒpƒbƒh‚Ì–³Œøƒ][ƒ“‚Ìİ’è‚ğs‚¤( InputType:İ’è‚ğ•ÏX‚·‚éƒpƒbƒh‚Ì¯•Êq( DX_INPUT_PAD1“™ )   Zone:V‚µ‚¢–³Œøƒ][ƒ“( 0.0 ` 1.0 )AƒfƒtƒHƒ‹ƒg’l‚Í 0.35 )
-extern	double		GetJoypadDeadZone(						int InputType ) ;														// ƒWƒ‡ƒCƒpƒbƒh‚Ì–³Œøƒ][ƒ“‚Ìİ’è‚ğæ“¾‚·‚é( InputType:İ’è‚ğ•ÏX‚·‚éƒpƒbƒh‚Ì¯•Êq( DX_INPUT_PAD1“™ )   –ß‚è’l:–³Œøƒ][ƒ“( 0.0 ` 1.0 )
+extern	double		GetJoypadDeadZone(						int InputType ) ;														// ƒWƒ‡ƒCƒpƒbƒh‚Ì–³Œøƒ][ƒ“‚Ìİ’è‚ğæ“¾‚·‚é( InputType:İ’è‚ğ•ÏX‚·‚éƒpƒbƒh‚Ì¯•Êq( DX_INPUT_PAD1“™ )   –ß‚è’l:–³Œøƒ][ƒ“( 0.0 ` 1.0 ) )
+extern	int			SetJoypadDefaultDeadZoneAll(			double Zone ) ;															// ƒWƒ‡ƒCƒpƒbƒh‚ÌƒfƒtƒHƒ‹ƒg‚Ì–³Œøƒ][ƒ“‚ğİ’è‚·‚é( Zone:V‚µ‚¢–³Œøƒ][ƒ“( 0.0 ` 1.0 )AƒfƒtƒHƒ‹ƒg’l‚Í 0.35 )
+extern	double		GetJoypadDefaultDeadZoneAll(			void ) ;																// ƒWƒ‡ƒCƒpƒbƒh‚ÌƒfƒtƒHƒ‹ƒg‚Ì–³Œøƒ][ƒ“‚ğæ“¾‚·‚é( –ß‚è’l:–³Œøƒ][ƒ“( 0.0 ` 1.0 ) )
 extern	int			StartJoypadVibration(					int InputType, int Power, int Time, int EffectIndex DEFAULTPARAM( = -1 ) ) ;	// ƒWƒ‡ƒCƒpƒbƒh‚ÌU“®‚ğŠJn‚·‚é
 extern	int			StopJoypadVibration(					int InputType, int EffectIndex DEFAULTPARAM( = -1 ) ) ;					// ƒWƒ‡ƒCƒpƒbƒh‚ÌU“®‚ğ’â~‚·‚é
 extern	int			GetJoypadPOVState(						int InputType, int POVNumber ) ;										// ƒWƒ‡ƒCƒpƒbƒh‚Ì‚o‚n‚u“ü—Í‚Ìó‘Ô‚ğ“¾‚é( –ß‚è’l@w’è‚ÌPOVƒf[ƒ^‚ÌŠp“xA’PˆÊ‚ÍŠp“x‚Ì‚P‚O‚O”{( 90“x‚È‚ç 9000 ) ’†SˆÊ’u‚É‚ ‚éê‡‚Í -1 ‚ª•Ô‚é )
@@ -2759,6 +2765,10 @@ extern	int			SetCreateGraphChannelBitDepth(				int BitDepth ) ;								// ì¬‚·
 extern	int			GetCreateGraphChannelBitDepth(				void ) ;										// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ì‚Pƒ`ƒƒƒ“ƒlƒ‹•Ó‚è‚Ìƒrƒbƒg[“x‚ğæ“¾‚·‚é
 extern	int			SetCreateGraphInitGraphDelete(				int Flag ) ;									// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğ InitGraph() ‚Åíœ‚³‚ê‚é‚©‚ğİ’è‚·‚é( Flag  TRUE:InitGraph‚Åíœ‚³‚ê‚é(ƒfƒtƒHƒ‹ƒg)  FALSE:InitGraph‚Åíœ‚³‚ê‚È‚¢ )
 extern	int			GetCreateGraphInitGraphDelete(				void ) ;										// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğ InitGraph() ‚Åíœ‚³‚ê‚é‚©‚ğæ“¾‚·‚é( Flag  TRUE:InitGraph‚Åíœ‚³‚ê‚é(ƒfƒtƒHƒ‹ƒg)  FALSE:InitGraph‚Åíœ‚³‚ê‚È‚¢ )
+extern	int			SetCreateGraphHandle(						int GrHandle ) ;								// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ìƒnƒ“ƒhƒ‹’l‚ğİ’è‚·‚éA‚OˆÈ‰º‚Ì’l‚ğ“n‚·‚Æİ’è‰ğœ( ‘¶İ‚µ‚È‚¢ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ì’l‚Ìê‡‚Ì‚İ—LŒø )
+extern	int			GetCreateGraphHandle(						void ) ;										// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ìƒnƒ“ƒhƒ‹’l‚ğæ“¾‚·‚é
+extern	int			SetCreateDivGraphHandle(					const int *HandleArray, int HandleNum ) ;		// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ìƒnƒ“ƒhƒ‹’l‚ğİ’è‚·‚éALoadDivGraph “™‚Ì•ªŠ„‰æ‘œ“Ç‚İ‚İ—pAHandleArray ‚É NULL ‚ğ“n‚·‚Æİ’è‰ğœ( ‘¶İ‚µ‚È‚¢ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ì’l‚Ìê‡‚Ì‚İ—LŒø )
+extern	int			GetCreateDivGraphHandle(					int *HandleArray ) ;							// ì¬‚·‚éƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ìƒnƒ“ƒhƒ‹’l‚ğæ“¾‚·‚éALoadDivGraph “™‚Ì•ªŠ„‰æ‘œ“Ç‚İ‚İ—pA–ß‚è’l‚Í SetCreateDivGraphHandle ‚Ìˆø” HandleNum ‚É“n‚µ‚½’lAHandleArray ‚ğ NULL ‚É‚·‚é‚±‚Æ‚ª‰Â”\
 extern	int			SetDrawValidGraphCreateFlag(				int Flag ) ;									// SetDrawScreen ‚Éˆø”‚Æ‚µ‚Ä“n‚¹‚é( •`‰æ‘ÎÛ‚Æ‚µ‚Äg—p‚Å‚«‚é )ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğì¬‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:•`‰æ‰Â”\ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğì¬‚·‚é  FLASE:’Êí‚ÌƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğì¬‚·‚é( ƒfƒtƒHƒ‹ƒg ) )
 extern	int			GetDrawValidGraphCreateFlag(				void ) ;										// SetDrawScreen ‚Éˆø”‚Æ‚µ‚Ä“n‚¹‚é( •`‰æ‘ÎÛ‚Æ‚µ‚Äg—p‚Å‚«‚é )ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğì¬‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚ğæ“¾‚·‚é
 extern	int			SetDrawValidFlagOf3DGraph(					int Flag ) ;									// SetDrawValidGraphCreateFlag ‚Ì‹Œ–¼Ì
@@ -2807,6 +2817,8 @@ extern	int			SetUseGraphBaseDataBackup(					int Flag ) ;									// ƒOƒ‰ƒtƒBƒbƒN
 extern	int			GetUseGraphBaseDataBackup(					void ) ;										// ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ğì¬‚·‚éÛ‚Ég—p‚µ‚½‰æ‘œƒf[ƒ^‚ÌƒoƒbƒNƒAƒbƒv‚ğ‚µ‚Ä Direct3DDevice ‚ÌƒfƒoƒCƒXƒƒXƒg‚Ég—p‚·‚é‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é
 extern	int			SetUseSystemMemGraphCreateFlag(				int Flag ) ;									// ( Œ»İŒø‰Ê‚È‚µ )ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ª‚Â‰æ‘œƒf[ƒ^‚ğƒVƒXƒeƒ€ƒƒ‚ƒŠã‚Éì¬‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:ƒVƒXƒeƒ€ƒƒ‚ƒŠã‚Éì¬  FALSE:‚u‚q‚`‚lã‚Éì¬( ƒfƒtƒHƒ‹ƒg ) )
 extern	int			GetUseSystemMemGraphCreateFlag(				void ) ;										// ( Œ»İŒø‰Ê‚È‚µ )ƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚ª‚Â‰æ‘œƒf[ƒ^‚ğƒVƒXƒeƒ€ƒƒ‚ƒŠã‚Éì¬‚·‚é‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é
+extern	int			SetUseLoadDivGraphSizeCheckFlag(			int Flag ) ;									// LoadDivGraph Œn‚Ì•ªŠ„‰æ‘œ“Ç‚İ‚İŠÖ”‚ÅƒTƒCƒY‚Ìƒ`ƒFƒbƒN‚ğs‚¤‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( Flag:TRUE( ƒ`ƒFƒbƒN‚ğs‚¤(ƒfƒtƒHƒ‹ƒg) )  FALSE:ƒ`ƒFƒbƒN‚ğs‚í‚È‚¢ )
+extern	int			GetUseLoadDivGraphSizeCheckFlag(			void ) ;										// LoadDivGraph Œn‚Ì•ªŠ„‰æ‘œ“Ç‚İ‚İŠÖ”‚ÅƒTƒCƒY‚Ìƒ`ƒFƒbƒN‚ğs‚¤‚©‚Ç‚¤‚©‚Ìİ’è‚ğæ“¾‚·‚é
 
 // ‰æ‘œî•ñŠÖŒWŠÖ”
 extern	const unsigned int* GetFullColorImage(				int GrHandle ) ;																// w’è‚ÌƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Ì‚`‚q‚f‚a‚WƒCƒ[ƒW‚ğæ“¾‚·‚é( Œ»İ“®‰æƒtƒ@ƒCƒ‹‚ğƒOƒ‰ƒtƒBƒbƒNƒnƒ“ƒhƒ‹‚Å“Ç‚İ‚ñ‚¾ê‡‚Ì‚İg—p‰Â”\ )
@@ -2973,8 +2985,11 @@ extern	int			DrawPolygon(                             const VERTEX    *VertexArr
 extern	int			DrawPolygon2D(                           const VERTEX2D  *VertexArray, int PolygonNum,                                                                                                       int GrHandle, int TransFlag ) ;							// ‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
 extern	int			DrawPolygon3D(                           const VERTEX3D  *VertexArray, int PolygonNum,                                                                                                       int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
 extern	int			DrawPolygonIndexed2D(                    const VERTEX2D  *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum,                                                      int GrHandle, int TransFlag ) ;							// ‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )
+extern	int			DrawPolygon32bitIndexed2D(               const VERTEX2D  *VertexArray, int VertexNum, const unsigned int   *IndexArray, int PolygonNum,                                                      int GrHandle, int TransFlag ) ;							// ‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )
 extern	int			DrawPolygonIndexed3D(                    const VERTEX3D  *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum,                                                      int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )
+extern	int			DrawPolygon32bitIndexed3D(               const VERTEX3D  *VertexArray, int VertexNum, const unsigned int   *IndexArray, int PolygonNum,                                                      int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )
 extern	int			DrawPolygonIndexed3DBase(                const VERTEX_3D *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )( ‹Œƒo[ƒWƒ‡ƒ“—p )
+extern	int			DrawPolygon32bitIndexed3DBase(           const VERTEX_3D *VertexArray, int VertexNum, const unsigned int   *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p )( ‹Œƒo[ƒWƒ‡ƒ“—p )
 extern	int			DrawPolygon3DBase(                       const VERTEX_3D *VertexArray, int VertexNum,                                                   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ‹Œƒo[ƒWƒ‡ƒ“—p )
 #ifndef DX_COMPILE_TYPE_C_LANGUAGE
 extern	int			DrawPolygon3D(                           const VERTEX_3D *VertexArray, int PolygonNum,                                                                                                       int GrHandle, int TransFlag ) ;							// ‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ‹Œƒo[ƒWƒ‡ƒ“—p )
@@ -2985,7 +3000,9 @@ extern	int			DrawPolygonBase(                         const VERTEX    *VertexArr
 extern	int			DrawPrimitive2D(                         const VERTEX2D  *VertexArray, int VertexNum,                                                   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
 extern	int			DrawPrimitive3D(                         const VERTEX3D  *VertexArray, int VertexNum,                                                   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
 extern	int			DrawPrimitiveIndexed2D(                  const VERTEX2D  *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é(’¸“_ƒCƒ“ƒfƒbƒNƒXg—p)
+extern	int			DrawPrimitive32bitIndexed2D(             const VERTEX2D  *VertexArray, int VertexNum, const unsigned int   *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é(’¸“_ƒCƒ“ƒfƒbƒNƒXg—p)
 extern	int			DrawPrimitiveIndexed3D(                  const VERTEX3D  *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é(’¸“_ƒCƒ“ƒfƒbƒNƒXg—p)
+extern	int			DrawPrimitive32bitIndexed3D(             const VERTEX3D  *VertexArray, int VertexNum, const unsigned int   *IndexArray, int IndexNum,   int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int GrHandle, int TransFlag ) ;							// ‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é(’¸“_ƒCƒ“ƒfƒbƒNƒXg—p)
 
 extern	int			DrawPolygon3D_UseVertexBuffer(           int VertexBufHandle,                                                                                                                                                               int GrHandle, int TransFlag ) ;		// ’¸“_ƒoƒbƒtƒ@‚ğg—p‚µ‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
 extern	int			DrawPrimitive3D_UseVertexBuffer(         int VertexBufHandle,                     int PrimitiveType  /* DX_PRIMTYPE_TRIANGLELIST “™ */,                                                                                     int GrHandle, int TransFlag ) ;		// ’¸“_ƒoƒbƒtƒ@‚ğg—p‚µ‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
@@ -3092,6 +3109,8 @@ extern	VECTOR_D	ConvScreenPosToWorldPos_ZLinearD(	VECTOR_D ScreenPos ) ;								
 extern	int			SetUseCullingFlag(					int Flag ) ;													// SetUseBackCulling ‚Ì‹Œ–¼Ì
 extern	int			SetUseBackCulling(					int Flag /* DX_CULLING_LEFT “™ */ ) ;							// ƒ|ƒŠƒSƒ“ƒJƒŠƒ“ƒOƒ‚[ƒh‚ğİ’è‚·‚é
 extern	int			GetUseBackCulling(					void ) ;														// ƒ|ƒŠƒSƒ“ƒJƒŠƒ“ƒOƒ‚[ƒh‚ğæ“¾‚·‚é
+extern	int			SetUseRightHandClippingProcess(		int Flag ) ;													// ‰EèÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤‚©‚ğİ’è‚·‚é( TRUE:‰EèÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤  FALSE:¶èÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤( ƒfƒtƒHƒ‹ƒg ) )
+extern	int			GetUseRightHandClippingProcess(		void ) ;														// ‰EèÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤‚©‚ğæ“¾‚·‚é( TRUE:‰EèÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤  FALSE:¶èÀ•WŒn‚ÌƒNƒŠƒbƒsƒ“ƒOˆ—‚ğs‚¤( ƒfƒtƒHƒ‹ƒg ) )
 
 extern	int			SetTextureAddressMode(				int Mode /* DX_TEXADDRESS_WRAP “™ */ , int Stage DEFAULTPARAM( = -1 ) ) ;	// ƒeƒNƒXƒ`ƒƒƒAƒhƒŒƒXƒ‚[ƒh‚ğİ’è‚·‚é
 extern	int			SetTextureAddressModeUV(			int ModeU, int ModeV, int Stage DEFAULTPARAM( = -1 ) ) ;					// ƒeƒNƒXƒ`ƒƒƒAƒhƒŒƒXƒ‚[ƒh‚ğİ’è‚·‚é( U ‚Æ V ‚ğ•ÊX‚Éİ’è‚·‚é )
@@ -3300,23 +3319,28 @@ extern	int			SetUseVertexShader(      int ShaderHandle ) ;										// ƒVƒF[ƒ_
 extern	int			SetUseGeometryShader(    int ShaderHandle ) ;										// ƒVƒF[ƒ_[‚ğg—p‚µ‚½•`‰æ‚Ég—p‚·‚éƒWƒIƒƒgƒŠƒVƒF[ƒ_[‚ğİ’è‚·‚é( -1‚ğ“n‚·‚Æ‰ğœ )
 extern	int			SetUsePixelShader(       int ShaderHandle ) ;										// ƒVƒF[ƒ_[‚ğg—p‚µ‚½•`‰æ‚Ég—p‚·‚éƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚ğİ’è‚·‚é( -1‚ğ“n‚·‚Æ‰ğœ )
 
-extern	int			CalcPolygonBinormalAndTangentsToShader(        VERTEX3DSHADER *VertexArray, int PolygonNum ) ;														// ƒ|ƒŠƒSƒ“‚Ì’¸“_‚ÌÚü‚Æ]–@ü‚ğ‚t‚uÀ•W‚©‚çŒvZ‚µ‚ÄƒZƒbƒg‚·‚é
-extern	int			CalcPolygonIndexedBinormalAndTangentsToShader( VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;		// ƒ|ƒŠƒSƒ“‚Ì’¸“_‚ÌÚü‚Æ]–@ü‚ğ‚t‚uÀ•W‚©‚çŒvZ‚µ‚ÄƒZƒbƒg‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			CalcPolygonBinormalAndTangentsToShader(             VERTEX3DSHADER *VertexArray, int PolygonNum ) ;														// ƒ|ƒŠƒSƒ“‚Ì’¸“_‚ÌÚü‚Æ]–@ü‚ğ‚t‚uÀ•W‚©‚çŒvZ‚µ‚ÄƒZƒbƒg‚·‚é
+extern	int			CalcPolygonIndexedBinormalAndTangentsToShader(      VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;	// ƒ|ƒŠƒSƒ“‚Ì’¸“_‚ÌÚü‚Æ]–@ü‚ğ‚t‚uÀ•W‚©‚çŒvZ‚µ‚ÄƒZƒbƒg‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			CalcPolygon32bitIndexedBinormalAndTangentsToShader( VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned int   *IndexArray, int PolygonNum ) ;	// ƒ|ƒŠƒSƒ“‚Ì’¸“_‚ÌÚü‚Æ]–@ü‚ğ‚t‚uÀ•W‚©‚çŒvZ‚µ‚ÄƒZƒbƒg‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
 
 extern	int			DrawBillboard3DToShader( VECTOR Pos, float cx, float cy, float Size, float Angle, int GrHandle, int TransFlag, int ReverseXFlag DEFAULTPARAM( = FALSE ) , int ReverseYFlag DEFAULTPARAM( = FALSE ) ) ;							// ƒVƒF[ƒ_[‚ğg‚Á‚Äƒrƒ‹ƒ{[ƒh‚ğ•`‰æ‚·‚é
-extern	int			DrawPolygon2DToShader(          const VERTEX2DSHADER *VertexArray, int PolygonNum ) ;																											// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
-extern	int			DrawPolygon3DToShader(          const VERTEX3DSHADER *VertexArray, int PolygonNum ) ;																											// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
-extern	int			DrawPolygonIndexed2DToShader(   const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
-extern	int			DrawPolygonIndexed3DToShader(   const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
-extern	int			DrawPrimitive2DToShader(        const VERTEX2DSHADER *VertexArray, int VertexNum,                                                 int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
-extern	int			DrawPrimitive3DToShader(        const VERTEX3DSHADER *VertexArray, int VertexNum,                                                 int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
-extern	int			DrawPrimitiveIndexed2DToShader( const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
-extern	int			DrawPrimitiveIndexed3DToShader( const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
-extern	int			DrawPolygon3DToShader_UseVertexBuffer(           int VertexBufHandle ) ;																														// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
-extern	int			DrawPolygonIndexed3DToShader_UseVertexBuffer(    int VertexBufHandle, int IndexBufHandle ) ;																									// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@g—p”Å )
-extern	int			DrawPrimitive3DToShader_UseVertexBuffer(         int VertexBufHandle,                     int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;												// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
-extern	int			DrawPrimitive3DToShader_UseVertexBuffer2(        int VertexBufHandle,                     int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int StartVertex, int UseVertexNum ) ;			// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
-extern	int			DrawPrimitiveIndexed3DToShader_UseVertexBuffer(  int VertexBufHandle, int IndexBufHandle, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;												// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@g—p”Å )
+extern	int			DrawPolygon2DToShader(               const VERTEX2DSHADER *VertexArray, int PolygonNum ) ;																											// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
+extern	int			DrawPolygon3DToShader(               const VERTEX3DSHADER *VertexArray, int PolygonNum ) ;																											// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é
+extern	int			DrawPolygonIndexed2DToShader(        const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPolygon32bitIndexed2DToShader(   const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned int   *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPolygonIndexed3DToShader(        const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPolygon32bitIndexed3DToShader(   const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned int   *IndexArray, int PolygonNum ) ;															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPrimitive2DToShader(             const VERTEX2DSHADER *VertexArray, int VertexNum,                                                 int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
+extern	int			DrawPrimitive3DToShader(             const VERTEX3DSHADER *VertexArray, int VertexNum,                                                 int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é
+extern	int			DrawPrimitiveIndexed2DToShader(      const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPrimitive32bitIndexed2DToShader( const VERTEX2DSHADER *VertexArray, int VertexNum, const unsigned int   *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚Q‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPrimitiveIndexed3DToShader(      const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned short *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPrimitive32bitIndexed3DToShader( const VERTEX3DSHADER *VertexArray, int VertexNum, const unsigned int   *IndexArray, int IndexNum, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;		// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒCƒ“ƒfƒbƒNƒX‚ğg—p‚·‚é )
+extern	int			DrawPolygon3DToShader_UseVertexBuffer(           int VertexBufHandle ) ;																															// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
+extern	int			DrawPolygonIndexed3DToShader_UseVertexBuffer(    int VertexBufHandle, int IndexBufHandle ) ;																										// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒ|ƒŠƒSƒ“‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@g—p”Å )
+extern	int			DrawPrimitive3DToShader_UseVertexBuffer(         int VertexBufHandle,                     int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;													// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
+extern	int			DrawPrimitive3DToShader_UseVertexBuffer2(        int VertexBufHandle,                     int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int StartVertex, int UseVertexNum ) ;				// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@g—p”Å )
+extern	int			DrawPrimitiveIndexed3DToShader_UseVertexBuffer(  int VertexBufHandle, int IndexBufHandle, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */ ) ;													// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@g—p”Å )
 extern	int			DrawPrimitiveIndexed3DToShader_UseVertexBuffer2( int VertexBufHandle, int IndexBufHandle, int PrimitiveType /* DX_PRIMTYPE_TRIANGLELIST “™ */, int BaseVertex, int StartVertex, int UseVertexNum, int StartIndex, int UseIndexNum ) ;	// ƒVƒF[ƒ_[‚ğg‚Á‚Ä‚R‚cƒvƒŠƒ~ƒeƒBƒu‚ğ•`‰æ‚·‚é( ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@g—p”Å )
 
 // ƒVƒF[ƒ_[—p’è”ƒoƒbƒtƒ@ŠÖŒWŠÖ”
@@ -3738,6 +3762,8 @@ extern	int			SetFontCacheUsePremulAlphaFlag(         int Flag ) ;															
 extern	int			GetFontCacheUsePremulAlphaFlag(         void ) ;																						// ƒtƒHƒ“ƒgƒLƒƒƒbƒVƒ…‚Æ‚µ‚Ä•Û‘¶‚·‚é‰æ‘œ‚ÌŒ`®‚ğæZÏ‚İƒ¿ƒ`ƒƒƒ“ƒlƒ‹•t‚«‰æ‘œ‚É‚·‚é‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é
 extern	int			SetFontUseAdjustSizeFlag(               int Flag ) ;																					// ƒtƒHƒ“ƒg‚ÌƒTƒCƒY‚ğ•â³‚·‚éˆ—‚ğs‚¤‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( Flag  TRUE:s‚¤( ƒfƒtƒHƒ‹ƒg )  FALSE:s‚í‚È‚¢ )
 extern	int			GetFontUseAdjustSizeFlag(               void ) ;																						// ƒtƒHƒ“ƒg‚ÌƒTƒCƒY‚ğ•â³‚·‚éˆ—‚ğs‚¤‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é
+extern	int			SetFontOnlyDrawType(					int OnlyType ) ;																				// ƒtƒHƒ“ƒg‚Ì•`‰æ‚Å‰‚Ì‚İA–”‚Í–{‘Ì‚Ì‚İ•`‰æ‚ğs‚¤‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( OnlyType  0:’Êí•`‰æ 1:–{‘Ì‚Ì‚İ•`‰æ 2:‰‚Ì‚İ•`‰æ )
+extern	int			GetFontOnlyDrawType(					void ) ;																						// ƒtƒHƒ“ƒg‚Ì•`‰æ‚Å‰‚Ì‚İA–”‚Í–{‘Ì‚Ì‚İ•`‰æ‚ğs‚¤‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é( –ß‚è’l  0:’Êí•`‰æ 1:–{‘Ì‚Ì‚İ•`‰æ 2:‰‚Ì‚İ•`‰æ )
 
 
 // FontCacheStringDraw ‚Ì‘ã‚í‚è‚É DrawString ‚ğg‚Á‚Ä‚­‚¾‚³‚¢
@@ -4532,7 +4558,9 @@ extern	int			SetUseFastLoadFlag(              int Flag ) ;														// ‚‘¬“
 extern	int			SetGraphDataShavedMode(          int ShavedMode /* DX_SHAVEDMODE_NONE “™ */ ) ;						// ‰æ‘œŒ¸F‚Ì‰æ‘œ—ò‰»ŠÉ˜aˆ—ƒ‚[ƒh‚ğİ’è‚·‚é( ƒfƒtƒHƒ‹ƒg‚Å‚ÍŠÉ˜aˆ—–³‚µ‚Ì DX_SHAVEDMODE_NONE )
 extern	int			GetGraphDataShavedMode(          void ) ;															// ‰æ‘œŒ¸F‚Ì‰æ‘œ—ò‰»ŠÉ˜aˆ—ƒ‚[ƒh‚ğæ“¾‚·‚é
 extern	int			SetUsePremulAlphaConvertLoad(    int UseFlag ) ;													// ‰æ‘œƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚ÉæZÏ‚İƒAƒ‹ƒtƒ@‰æ‘œ‚É•ÏŠ·‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:•ÏŠ·ˆ—‚ğs‚¤  FALSE:•ÏŠ·ˆ—‚ğs‚í‚È‚¢( ƒfƒtƒHƒ‹ƒg ) )
+extern	int			GetUsePremulAlphaConvertLoad(    void ) ;															// ‰æ‘œƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚ÉæZÏ‚İƒAƒ‹ƒtƒ@‰æ‘œ‚É•ÏŠ·‚·‚é‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é( TRUE:•ÏŠ·ˆ—‚ğs‚¤  FALSE:•ÏŠ·ˆ—‚ğs‚í‚È‚¢( ƒfƒtƒHƒ‹ƒg ) )
 extern	int			SetUseConvertNormalFormatLoad(   int UseFlag ) ;													// ‰æ‘œƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚É DX_BASEIMAGE_FORMAT_NORMAL ˆÈŠO‚ÌŒ`®‚ÌƒCƒ[ƒW‚ğ DX_BASEIMAGE_FORMAT_NORMAL Œ`®‚ÌƒCƒ[ƒW‚É•ÏŠ·‚·‚é‚©‚Ç‚¤‚©‚ğİ’è‚·‚é( TRUE:•ÏŠ·ˆ—‚ğs‚¤  FALSE:•ÏŠ·ˆ—‚ğs‚È‚í‚È‚¢( ƒfƒtƒHƒ‹ƒg ) )
+extern	int			GetUseConvertNormalFormatLoad(   void ) ;															// ‰æ‘œƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚É DX_BASEIMAGE_FORMAT_NORMAL ˆÈŠO‚ÌŒ`®‚ÌƒCƒ[ƒW‚ğ DX_BASEIMAGE_FORMAT_NORMAL Œ`®‚ÌƒCƒ[ƒW‚É•ÏŠ·‚·‚é‚©‚Ç‚¤‚©‚ğæ“¾‚·‚é( TRUE:•ÏŠ·ˆ—‚ğs‚¤  FALSE:•ÏŠ·ˆ—‚ğs‚È‚í‚È‚¢( ƒfƒtƒHƒ‹ƒg ) )
 
 // Šî–{ƒCƒ[ƒWƒf[ƒ^\‘¢‘ÌŠÖŒW
 extern	int			CreateBaseImage(                 const TCHAR *FileName,                        const void *FileImage, int FileImageSize, int DataType /*=LOADIMAGE_TYPE_FILE*/ , BASEIMAGE *BaseImage,  int ReverseFlag ) ;			// ‰æ‘œƒtƒ@ƒCƒ‹á‚µ‚­‚Íƒƒ‚ƒŠã‚É“WŠJ‚³‚ê‚½‰æ‘œƒtƒ@ƒCƒ‹ƒCƒ[ƒW‚©‚çŠî–{ƒCƒ[ƒWƒf[ƒ^‚ğ\’z‚·‚é

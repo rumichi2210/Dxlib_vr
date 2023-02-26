@@ -4974,19 +4974,19 @@ namespace vr
 
 		// ---------------  Handle management   --------------- //
 
-		/** Sets the path to the action manifest JSON file that is used by this application. If this information
-		* was set on the Steam partner site, calls to this function are ignored. If the Steam partner site
-		* setting and the path provided by this call are different, VRInputError_MismatchedActionManifest is returned.
-		* This call must be made before the first call to UpdateActionState or IVRSystem::PollNextEvent. */
+		/** このアプリケーションで使用されるアクションマニフェスト JSON ファイルへのパスを設定します。
+		この情報が Steam パートナーサイトで設定された場合、この関数の呼び出しは無視されます。
+		Steam パートナーサイトの設定とこのコールで提供されたパスが異なる場合、VRInputError_MismatchedActionManifest が返されます。 
+		このコールは UpdateActionState または IVRSystem::PollNextEvent への最初のコールの前に行われる必要があります。*/
 		virtual EVRInputError SetActionManifestPath( const char *pchActionManifestPath ) = 0;
 
-		/** Returns a handle for an action set. This handle is used for all performance-sensitive calls. */
+		/** アクションセットに対するハンドルを返します。このハンドルは、パフォーマンスを重視するすべての呼び出しに使用されます。 */
 		virtual EVRInputError GetActionSetHandle( const char *pchActionSetName, VRActionSetHandle_t *pHandle ) = 0;
 
-		/** Returns a handle for an action. This handle is used for all performance-sensitive calls. */
+		/** アクションのハンドルを返します。このハンドルは、パフォーマンスを重視するすべての呼び出しに使用されます。 */
 		virtual EVRInputError GetActionHandle( const char *pchActionName, VRActionHandle_t *pHandle ) = 0;
 
-		/** Returns a handle for any path in the input system. E.g. /user/hand/right */
+		/** 入力システム内の任意のパスに対するハンドルを返す。例：/user/hand/right */
 		virtual EVRInputError GetInputSourceHandle( const char *pchInputSourcePath, VRInputValueHandle_t *pHandle ) = 0;
 
 
