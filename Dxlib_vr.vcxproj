@@ -79,6 +79,7 @@
       <AdditionalIncludeDirectories>lib/DxLib;lib/openvr</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -97,6 +98,7 @@
       <AdditionalIncludeDirectories>lib/DxLib;lib/openvr</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -115,6 +117,7 @@
       <AdditionalIncludeDirectories>lib/DxLib;lib/openvr</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +136,7 @@
       <AdditionalIncludeDirectories>lib/DxLib;lib/openvr</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,14 +148,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lib\openvr\Matrices.cpp" />
+    <ClCompile Include="lib\openvr\pathtools.cpp" />
+    <ClCompile Include="lib\openvr\strtools.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\vr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\openvr\compat.h" />
     <ClInclude Include="lib\openvr\Matrices.h" />
     <ClInclude Include="lib\openvr\openvr.h" />
     <ClInclude Include="lib\openvr\openvr_capi.h" />
     <ClInclude Include="lib\openvr\openvr_driver.h" />
+    <ClInclude Include="lib\openvr\pathtools.h" />
+    <ClInclude Include="lib\openvr\strtools.h" />
     <ClInclude Include="lib\openvr\Vectors.h" />
     <ClInclude Include="src\vr.hpp" />
   </ItemGroup>

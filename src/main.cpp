@@ -70,6 +70,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	InitConsole();
 
 	if (DXLIB_VR::Init()==false){
+		while(CheckHitKey(KEY_INPUT_F12) == 0) {}
 		DxLib::DxLib_End();
 		return 0;
 	}
@@ -97,22 +98,29 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	int FPSCount = 0;
 	int FPSTime = GetNowCount();
 
+	printf("Sキーで計測開始");
+	while (CheckHitKey(KEY_INPUT_S) == 0) {}
+	system("cls");//画面をクリア
 
 
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
+		// falseならトラッキングデータを継続的に解析し、trueならopenvrのイベントが発生したときに解析します。
+		DXLIB_VR::RunProcedure(false);
 		DXLIB_VR::updateVRState();
-		DxLib::MV1SetMatrix(cont, DxLib::MMult(DxLib::MGetScale(DxLib::VGet(0.01f,0.01f,0.01f)),DXLIB_VR::GetContolloer()));
+		//DxLib::MV1SetMatrix(cont, DxLib::MMult(DxLib::MGetScale(DxLib::VGet(0.01f,0.01f,0.01f)),DXLIB_VR::GetContolloer()));
 
 		DrawSphere3D(DXLIB_VR::GetLeftContolloer(), 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
-		UpdateCameraScreen(vr::Eye_Right, DXLIB_VR::GetViewMat2(vr::Eye_Right), DXLIB_VR::GetProjectiontMat(vr::Eye_Right));
-		UpdateCameraScreen(vr::Eye_Left, DXLIB_VR::GetViewMat2(vr::Eye_Left), DXLIB_VR::GetProjectiontMat(vr::Eye_Left));
+		UpdateCameraScreen(vr::Eye_Right, DXLIB_VR::GetViewMat(vr::Eye_Right), DXLIB_VR::GetProjectiontMat(vr::Eye_Right));
+		UpdateCameraScreen(vr::Eye_Left, DXLIB_VR::GetViewMat(vr::Eye_Left), DXLIB_VR::GetProjectiontMat(vr::Eye_Left));
 		DXLIB_VR::putTex((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
 		DXLIB_VR::putTex((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeLeft), vr::Eye_Left);
 			 
 		DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
 		DxLib::SetCameraScreenCenter(1280,720);
 		DxLib::MV1DrawModel(stage);
+		//DxLib::MV1DrawModel(cont);
 
 		FPSCount++;
 		int NowTime = GetNowCount();
