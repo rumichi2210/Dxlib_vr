@@ -2,7 +2,7 @@
     "default_bindings": [
         {
           "controller_type": "vive_controller",
-          "binding_url": "bindings_vive_controller"
+          "binding_url": "bindings_vive_controller.json"
         }
       ],
     "actions": [
@@ -32,14 +32,23 @@
         }
     ],
     "localization" : [
-        {
-            "language_tag": "ja_JP",
-            "/actions/main/in/Decision" : "決定",
-            "/actions/main/in/Cancel" : "キャンセル",
-            "/actions/main/in/Move" : "移動",
-            "/actions/main/in/Select" : "選択",
-            "/actions/main/in/Controller_Right" : "右手",
-            "/actions/main/in/Controller_Left" : "左手"
-        }
+      {
+        "language_tag": "ja_jp",
+        "/actions/main/in/Decision": "決定",
+        "/actions/main/in/Cancel": "キャンセル",
+        "/actions/main/in/Move": "移動",
+        "/actions/main/in/Select": "選択",
+        "/actions/main/in/Controller_Right": "右手",
+        "/actions/main/in/Controller_Left": "左手"
+      },
+      {
+        "language_tag": "en_us",
+        "/actions/main/in/Decision": "Decision",
+        "/actions/main/in/Cancel": "Cancel",
+        "/actions/main/in/Move": "Move",
+        "/actions/main/in/Select": "Select",
+        "/actions/main/in/Controller_Right": "right hand",
+        "/actions/main/in/Controller_Left": "left hand"
+      }
     ]
 }

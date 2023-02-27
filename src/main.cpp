@@ -1,5 +1,6 @@
 #include "DxLib.h"
 #include "vr.hpp"
+#include <memory>
 
 
 int vrEyeRight;
@@ -7,7 +8,6 @@ int vrEyeLeft;
 int stage;
 int chara;
 
-int cont;
 
 //コンソールスクリーンサイズ
 constexpr SMALL_RECT rect{ 0, 0, 200, 80 };
@@ -30,7 +30,6 @@ void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float 
 	DxLib::SetupCamera_ProjectionMatrix(projection);
 	DxLib::SetCameraViewMatrix(view);
 	DxLib::MV1DrawModel(stage);
-	DxLib::MV1DrawModel(cont);
 	DxLib::SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
 }
 
@@ -52,6 +51,7 @@ void InitConsole() {
 
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);//メモリリーク検出->Debug時のみ有功になります
 	if (DxLib::SetUseDirect3DVersion(DX_DIRECT3D_11) == -1) { return 0; }//OpenVRではdirectX 11を使用するため変更
 	if (DxLib::SetGraphMode(2560, 1440, 32) == -1) { return 0; }//画面サイズの設定
 	if (DxLib::SetBackgroundColor(50, 50, 50) == -1) { return 0; }//背景の色を指定
@@ -67,12 +67,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	if (DxLib::SetUseZBuffer3D(TRUE) == -1) { return 0; }// Zバッファを有効にする。
 	if (DxLib::SetWriteZBuffer3D(TRUE) == -1) { return 0; }// Zバッファへの書き込みを有効にする。
 
-
-
 	InitConsole();
-	OpenvrForDXLib* vrHandler = new OpenvrForDXLib();
-	if (!vrHandler) {
-		while (CheckHitKey(KEY_INPUT_F12) == 0) {}
+	auto vrHandler = std::make_unique<OpenvrForDXLib>();
+	if (!vrHandler|| !vrHandler->vrCheck()) {
+		MessageBox(NULL, TEXT("警告"),TEXT("openVRを初期化できませんでした"), MB_OK);
 		DxLib::DxLib_End();
 		return 0;
 	}
@@ -91,12 +89,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	DxLib::MV1SetScale(stage, VGet(3.0f, 3.0f, 3.0f));
 	DxLib::MV1SetPosition(stage, VGet(0.0f, 0.0f, 0.0f));
 
-	cont = DxLib::MV1LoadModel(".\\res\\vive_ Controler.mv1");
-	for (int i = 0; i < DxLib::MV1GetMeshNum(cont); i++)
-	{
-		DxLib::MV1SetMeshBackCulling(cont, i, DX_CULLING_RIGHT);
-	}
-
 	int DispFPS = 0;
 	int FPSCount = 0;
 	int FPSTime = GetNowCount();
@@ -104,12 +96,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	printf("Sキーで計測開始");
 	while (CheckHitKey(KEY_INPUT_S) == 0) {}
 	system("cls");//画面をクリア
-
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
 
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
-		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
-		vrHandler->UdateState();
+		vrHandler->UpdateState();
 		//DxLib::MV1SetMatrix(cont, DxLib::MMult(DxLib::MGetScale(DxLib::VGet(0.01f,0.01f,0.01f)),DXLIB_VR::GetContolloer()));
 
 		//DrawSphere3D(DXLIB_VR::GetLeftContolloer(), 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
@@ -121,7 +112,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
 		DxLib::SetCameraScreenCenter(1280, 720);
 		DxLib::MV1DrawModel(stage);
-		//DxLib::MV1DrawModel(cont);
 
 		FPSCount++;
 		int NowTime = GetNowCount();
@@ -132,9 +122,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 			FPSTime = NowTime;
 		}
 		DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS:%d", DispFPS);
+		if (CheckHitKey(KEY_INPUT_F10) == 0) { return 0; }
 	}
-
-	delete vrHandler;
 
 	DxLib::DxLib_End();
 

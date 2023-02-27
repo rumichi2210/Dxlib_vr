@@ -1,28 +1,5 @@
 #include "vr.hpp"
 
-#include <iostream>
-#define VAR_NAME(var) printf_s( "\n--------"#var "--------\n" )
-
-Matrix4 m_mat4HMDPose;
-Matrix4 m_mat4ProjectionCenter;
-
-//vr::IVRSystem* m_pHMD = nullptr;
-
-
-vr::Texture_t eyeTexLeft;
-vr::Texture_t eyeTexRight;
-vr::IVRRenderModels* m_pRenderModels;
-//vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-//Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
-bool m_rbShowTrackedDevice[vr::k_unMaxTrackedDeviceCount];
-int m_iTrackedControllerCount;
-int m_iTrackedControllerCount_Last;
-int m_iValidPoseCount;
-int m_iValidPoseCount_Last;
-unsigned int m_uiControllerVertcount;
-std::string m_strPoseClasses;                            // このフレームのポーズを見たとき
-char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // 各デバイスについて、そのクラスを表す文字
-
 OpenvrForDXLib::OpenvrForDXLib()
 {
 	char buf[1024];
@@ -31,14 +8,14 @@ OpenvrForDXLib::OpenvrForDXLib()
 		m_pHMD = NULL;
 		sprintf_s(buf, sizeof(buf), "VRランタイムの開始ができませんでした: %s", vr::VR_GetVRInitErrorAsEnglishDescription(error));
 		printf_s(buf);
-		//exit(EXIT_FAILURE);
+		return;
 	}
 
 	// VR Compositor が有効であることを確認し、そうでない場合はポーズを取得するとクラッシュします。
 	if (!BInitCompositor()) {
 		sprintf_s(buf, sizeof(buf), "VR Compositorの初期化に失敗しました。");
 		printf_s(buf);
-		//exit(EXIT_FAILURE);
+		return;
 	}
 	else {
 		sprintf_s(buf, sizeof(buf), "VR Compositorの初期化に成功しました。\n");
@@ -104,7 +81,7 @@ OpenvrForDXLib::OpenvrForDXLib()
 	GetActionHandleCheck(actionControllerLeftPath, &m_actionControllerLeft);
 
 	//デバイス情報を一括表示
-	DeviceInformationBatchDisplay();
+	DeviceInfoBatchDisplay();
 
 	GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
 	SetupCameras();
@@ -202,7 +179,7 @@ MATRIX OpenvrForDXLib::GetViewMatrix(vr::EVREye eye) {
 	Matrix4 matMVP;
 	matMVP = GetCurrentViewProjectionMatrix(eye);
 	const float* pos = matMVP.get();
-	MATRIX m_pos;
+	MATRIX m_pos{};
 	m_pos.m[0][0] = pos[0];		m_pos.m[0][1] = pos[1];		m_pos.m[0][2] = pos[2];		m_pos.m[0][3] = pos[3];
 	m_pos.m[1][0] = pos[4];		m_pos.m[1][1] = pos[5];		m_pos.m[1][2] = pos[6];		m_pos.m[1][3] = pos[7];
 	m_pos.m[2][0] = pos[8];		m_pos.m[2][1] = pos[9];		m_pos.m[2][2] = pos[10];	m_pos.m[2][3] = pos[11];
@@ -296,13 +273,13 @@ void OpenvrForDXLib::PutHMD(ID3D11Texture2D* texte, vr::EVREye eye) {
 	}
 }
 
-void OpenvrForDXLib::UdateState()
+void OpenvrForDXLib::UpdateState()
 {
 	UpdateHMDMatrixPose();
 	ParseTrackingFrame(-1);
 }
 
-void OpenvrForDXLib::DeviceInformationBatchDisplay() {
+void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 
 	char buf[1024];
 	sprintf_s(buf, sizeof(buf), "\nDevice list:\n---------------------------\n");

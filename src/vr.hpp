@@ -7,14 +7,8 @@
 #pragma comment(lib,"openvr_api.lib")
 #pragma warning(suppress : 4996)//Matrices.hとpathtools.hでvisual studio非推奨関数を使用しているため
 
-
-namespace DXLIB_VR {
-
-}
-
 class OpenvrForDXLib {
 private:
-
 	// 基本的なもの
 	vr::IVRSystem* m_pHMD = NULL;
 	vr::EVRInitError error = vr::VRInitError_None;
@@ -22,11 +16,16 @@ private:
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 	uint32_t hmdWidth;
 	uint32_t hmdHeight;
-	Matrix4 m_mat4eyePosLeft;
-	Matrix4 m_mat4eyePosRight;
-	Matrix4 m_mat4ProjectionCenter;
-	Matrix4 m_mat4ProjectionLeft;
-	Matrix4 m_mat4ProjectionRight;
+	Matrix4 m_mat4eyePosLeft = {};
+	Matrix4 m_mat4eyePosRight = {};
+	Matrix4 m_mat4ProjectionLeft = {};
+	Matrix4 m_mat4ProjectionRight = {};
+	Matrix4 m_mat4HMDPose = {};
+	vr::Texture_t eyeTexLeft;
+	vr::Texture_t eyeTexRight;
+	int m_iValidPoseCount;
+	std::string m_strPoseClasses;                            // このフレームのポーズを見たとき
+	char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // 各デバイスについて、そのクラスを表す文字
 	float m_fNearClip = 0.1f;
 	float m_fFarClip = 15000.0f;
 
@@ -71,7 +70,6 @@ private:
 	//HMDの画面サイズ(片目)を取得
 	void GetRecommendedRenderTargetSize(uint32_t* pnWidth, uint32_t* pnHeight) { m_pHMD->GetRecommendedRenderTargetSize(pnWidth, pnHeight); }
 
-
 	// Purpose: nEyeを基準としたMatrix Projection Eyeを取得します。
 	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
 
@@ -89,45 +87,30 @@ private:
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
 	void UpdateHMDMatrixPose();
 
-	//接続機器の情報をCUIに一括表示
-	void DeviceInformationBatchDisplay();
-public:
-	OpenvrForDXLib();
-	~OpenvrForDXLib();
-
-
-
-
-
-	// openvr のイベントをリッスンし、process と parse のルーチンを呼び出すメインループ、もし false ならばサービスは終了している
-	bool RunProcedure(bool bWaitForEvents, int filterIndex);
-
-	// VRイベントを処理し、何が起こったかについての一般的な情報を表示します。
-	bool ProcessVREvent(const vr::VREvent_t& event, int filterIndex);
-
 	// トラッキングフレームを解析し、その位置/回転/イベントを表示します。
 	// filterIndex に-1 以外を指定すると、特定のデバイスのデータのみを表示する。
 	void ParseTrackingFrame(int filterIndex);
 
-	// 差分計算
-	vr::HmdVector3_t GetControllerPositionDelta();
-	vr::HmdVector3_t GetLeftControllerPosition();
-	vr::HmdVector3_t GetRightControllerPosition();
-
+	//接続機器の情報をCUIに一括表示
+	void DeviceInfoBatchDisplay();
+public:
+	OpenvrForDXLib();
+	~OpenvrForDXLib();
 
 	//vr::VRActionHandle_tで定義したものしか使用できません
 	void GetActionHandleCheck(const char* pchActionName, vr::VRActionHandle_t* pHandle);
 
 	MATRIX GetProjectionMatrix(vr::EVREye eye);
 	MATRIX GetViewMatrix(vr::EVREye eye);
-	//MATRIX GetProjectionMatrix(vr::Hmd_Eye nEye);
 	int GetHMDWidth() { return hmdWidth; }
 	int GetHMDHeight() { return hmdHeight; }
 	//HMDで描画する
 	void PutHMD(ID3D11Texture2D* texte, vr::EVREye eye);
 
 	//デバイスの状態を一括で取り込む
-	void UdateState();
+	void UpdateState();
+
+	bool vrCheck() { return (error == vr::VRInitError_None) ? true : false; }
 
 };
 
