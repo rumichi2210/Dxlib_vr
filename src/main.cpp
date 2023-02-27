@@ -94,7 +94,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	int FPSTime = GetNowCount();
 
 	printf("Sキーで計測開始");
-	while (CheckHitKey(KEY_INPUT_S) == 0) {}
+	while (CheckHitKey(KEY_INPUT_S) == 0 && DxLib::ProcessMessage() == 0) {}
 	system("cls");//画面をクリア
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
 
