@@ -364,6 +364,13 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 
 }
 
+void MATRIX4_Print(Matrix4 val) {
+	const float* pos = val.get();
+	for (int i = 0; i < 16; i++) {
+		printf("pos[%d]=%f\n", i, pos[i]);
+	}
+}
+
 void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
 
 	char buf[1024];
@@ -551,10 +558,38 @@ void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
 		printf_s(buf);
 	}
 
-	printf("%0.2f,%0.2f,%0.2f", controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3]
+	printf("%f,%f,%f", controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3]
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3]
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3]);
 	DrawSphere3D(VGet(controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3])
-		, 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 0, 0),TRUE);
+		, 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 0, 0), TRUE);
 }
 
+ActionPose::ActionPose(std::string actionPath)
+{
+	path = actionPath;
+	GetActionHandle();
+}
+
+bool ActionPose::UpdateActionData()
+{
+	vr::EVRInputError inputError = vr::VRInput()->GetPoseActionDataForNextFrame(m_actionHandle, vr::TrackingUniverseStanding, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle);
+	return (inputError == vr::VRInputError_None) ? true : false;
+}
+
+Matrix4 ActionPose::GetPose()
+{
+	Matrix4 matrixObj(
+		actionData.pose.mDeviceToAbsoluteTracking.m[0][0], actionData.pose.mDeviceToAbsoluteTracking.m[1][0], actionData.pose.mDeviceToAbsoluteTracking.m[2][0], 0.0,
+		actionData.pose.mDeviceToAbsoluteTracking.m[0][1], actionData.pose.mDeviceToAbsoluteTracking.m[1][1], actionData.pose.mDeviceToAbsoluteTracking.m[2][1], 0.0,
+		actionData.pose.mDeviceToAbsoluteTracking.m[0][2], actionData.pose.mDeviceToAbsoluteTracking.m[1][2], actionData.pose.mDeviceToAbsoluteTracking.m[2][2], 0.0,
+		actionData.pose.mDeviceToAbsoluteTracking.m[0][3], actionData.pose.mDeviceToAbsoluteTracking.m[1][3], actionData.pose.mDeviceToAbsoluteTracking.m[2][3], 1.0f
+	);
+	return Matrix4();
+}
+
+bool ActionPose::GetActionHandle()
+{
+	vr::EVRInputError inputError = vr::VRInput()->GetActionHandle(path.c_str(), &m_actionHandle);
+	return (inputError == vr::VRInputError_None) ? true : false;
+}

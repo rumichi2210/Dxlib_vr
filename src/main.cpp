@@ -122,7 +122,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 			FPSTime = NowTime;
 		}
 		DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS:%d", DispFPS);
-		if (CheckHitKey(KEY_INPUT_F10) == 0) { return 0; }
+		if (CheckHitKey(KEY_INPUT_F10) != 0) { return 0; }
 	}
 
 	DxLib::DxLib_End();

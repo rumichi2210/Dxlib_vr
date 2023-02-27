@@ -7,6 +7,26 @@
 #pragma comment(lib,"openvr_api.lib")
 #pragma warning(suppress : 4996)//Matrices.hとpathtools.hでvisual studio非推奨関数を使用しているため
 
+
+namespace vrAction {
+
+}
+class ActionPose
+{
+public:
+	ActionPose(std::string actionPath);
+	~ActionPose();
+
+	Matrix4 GetPose();
+	 bool UpdateActionData();
+private:
+	std::string path;
+	vr::VRActionHandle_t m_actionHandle = vr::k_ulInvalidActionHandle;
+	vr::InputPoseActionData_t actionData;
+
+	bool GetActionHandle();
+};
+
 class OpenvrForDXLib {
 private:
 	// 基本的なもの
@@ -61,6 +81,7 @@ private:
 
 	vr::VRInputValueHandle_t m_inputHandRightPath = vr::k_ulInvalidInputValueHandle;
 	const char* inputHandRightPath = "/user/hand/right";
+
 
 	inline bool fileExists(const std::string& fileName) {
 		struct stat buff;
