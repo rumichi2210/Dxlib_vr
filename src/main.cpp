@@ -75,9 +75,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		return 0;
 	}
 
-	int MultiSamplBit = 16;
-	printf("SampleQualityMAX->%d", DxLib::GetMultiSampleQuality(MultiSamplBit));
-	DxLib::SetCreateDrawValidGraphMultiSample(MultiSamplBit, 16);
+	DxLib::SetCreateDrawValidGraphMultiSample(8,8);
 	vrEyeRight = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 	vrEyeLeft = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 
@@ -89,10 +87,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	DxLib::MV1SetScale(stage, VGet(3.0f, 3.0f, 3.0f));
 	DxLib::MV1SetPosition(stage, VGet(0.0f, 0.0f, 0.0f));
 
-	int DispFPS = 0;
-	int FPSCount = 0;
-	int FPSTime = GetNowCount();
-
 	printf("Sキーで計測開始");
 	while (CheckHitKey(KEY_INPUT_S) == 0 && DxLib::ProcessMessage() == 0) {}
 	system("cls");//画面をクリア
@@ -101,9 +95,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
 		vrHandler->UpdateState();
-		//DxLib::MV1SetMatrix(cont, DxLib::MMult(DxLib::MGetScale(DxLib::VGet(0.01f,0.01f,0.01f)),DXLIB_VR::GetContolloer()));
-
-		//DrawSphere3D(DXLIB_VR::GetLeftContolloer(), 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
 		UpdateCameraScreen(vr::Eye_Right, vrHandler->GetViewMatrix(vr::Eye_Right), vrHandler->GetProjectionMatrix(vr::Eye_Right), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
 		UpdateCameraScreen(vr::Eye_Left, vrHandler->GetViewMatrix(vr::Eye_Left), vrHandler->GetProjectionMatrix(vr::Eye_Left), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
 		vrHandler->PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
@@ -113,15 +104,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		DxLib::SetCameraScreenCenter(1280, 720);
 		DxLib::MV1DrawModel(stage);
 
-		FPSCount++;
-		int NowTime = GetNowCount();
-		if (NowTime - FPSTime >= 1000)
-		{
-			DispFPS = FPSCount;
-			FPSCount = 0;
-			FPSTime = NowTime;
-		}
-		DrawFormatString(0, 0, GetColor(255, 255, 255), "FPS:%d", DispFPS);
 		if (CheckHitKey(KEY_INPUT_F10) != 0) { return 0; }
 	}
 

@@ -2,58 +2,44 @@
 
 OpenvrForDXLib::OpenvrForDXLib()
 {
-	char buf[1024];
 	m_pHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
 	if (error != vr::VRInitError_None) {
 		m_pHMD = NULL;
-		sprintf_s(buf, sizeof(buf), "VRランタイムの開始ができませんでした: %s", vr::VR_GetVRInitErrorAsEnglishDescription(error));
-		printf_s(buf);
+		std::cout << "VRランタイムの開始ができませんでした:" << vr::VR_GetVRInitErrorAsEnglishDescription(error) << std::endl;
 		return;
 	}
 
 	// VR Compositor が有効であることを確認し、そうでない場合はポーズを取得するとクラッシュします。
 	if (!BInitCompositor()) {
-		sprintf_s(buf, sizeof(buf), "VR Compositorの初期化に失敗しました。");
-		printf_s(buf);
+		std::cout << "VR Compositorの初期化に失敗しました。" << std::endl;
 		return;
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "VR Compositorの初期化に成功しました。\n");
-		printf_s(buf);
+		std::cout << "VR Compositorの初期化に成功しました" << std::endl;
 	}
 
 	// マニフェストファイルの準備
-	// 実行ファイルからの相対パスが設定されていることを確認してください。
-	const char* manifestPath = "../../vr_binding/actions.json";
 	std::string manifestFileName = Path_MakeAbsolute(manifestPath, Path_StripFilename(Path_GetExecutablePath()));
-
 	// ファイルが存在するかどうかを確認してから続行する
 	if (!fileExists(manifestFileName)) {
-		sprintf_s(buf, sizeof(buf), "\n致命的なエラーです。マニフェストファイルが存在しません。ロードに失敗したファイル:\n%s\n\n", manifestFileName.c_str());
-		printf_s(buf);
-		//exit(EXIT_FAILURE);
+		std::cout << "致命的なエラーです。マニフェストファイルが存在しません。ロードに失敗したファイル:" << manifestFileName.c_str() << std::endl;
 	}
 
 	vr::EVRInputError inputError = vr::VRInput()->SetActionManifestPath(manifestFileName.c_str());
 	if (inputError != vr::VRInputError_None) {
-		sprintf_s(buf, sizeof(buf), "エラーマニフェストのパスが設定できません: %d\n", inputError);
-		printf_s(buf);
+		std::cout << "エラーマニフェストのパスが設定できません:" << inputError << std::endl;
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "マニフェストパスの使用に成功: %s\n", manifestFileName.c_str());
-		printf_s(buf);
+		std::cout << "マニフェストパスの使用に成功しました:" << manifestFileName.c_str() << std::endl;
 	}
 
-	// 新しいIVRInputのためのハンドル
-
+	// 新しいIVRInputハンドル読み込み
 	inputError = vr::VRInput()->GetActionSetHandle(actionSetPath, &m_actionSet);
 	if (inputError != vr::VRInputError_None) {
-		sprintf_s(buf, sizeof(buf), "アクションセットハンドルが取得できません: %d\n", inputError);
-		printf_s(buf);
+		std::cout << "アクションセットハンドルが取得できません:" << inputError << std::endl;
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "アクションセットハンドル:%sの取得に成功しました: %d\n", actionSetPath, (int)m_actionSet);
-		printf_s(buf);
+		std::cout << "アクションセットハンドル:" << actionSetPath << "の取得に成功しました:" << std::endl;
 	}
 
 	// 左手用ハンドル
@@ -83,7 +69,8 @@ OpenvrForDXLib::OpenvrForDXLib()
 	//デバイス情報を一括表示
 	DeviceInfoBatchDisplay();
 
-	GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
+	//HMDの画面サイズ(片目)を取得
+	m_pHMD->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
 	SetupCameras();
 }
 
@@ -98,11 +85,11 @@ OpenvrForDXLib::~OpenvrForDXLib()
 
 bool OpenvrForDXLib::BInitCompositor()
 {
-	vr::EVRInitError peError = vr::VRInitError_None;
+	error = vr::VRInitError_None;
 
 	if (!vr::VRCompositor())
 	{
-		printf("Compositor initialization failed. See log file for details\n");
+		std::cout << "コンポジターの初期化に失敗しました。詳しくはログファイルをご覧ください" << actionSetPath << std::endl;
 		return false;
 	}
 
@@ -111,15 +98,12 @@ bool OpenvrForDXLib::BInitCompositor()
 
 void OpenvrForDXLib::GetActionHandleCheck(const char* pchActionName, vr::VRActionHandle_t* pHandle)
 {
-	char buf[1024];
 	vr::EVRInputError inputError = vr::VRInput()->GetActionHandle(pchActionName, pHandle);
 	if (inputError != vr::VRInputError_None) {
-		sprintf_s(buf, sizeof(buf), "エラーアクションハンドルを取得できません: %d\n", inputError);
-		printf_s(buf);
+		std::cout << "エラーアクションハンドルを取得できません:" << inputError << std::endl;
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "正常に %s ハンドルを取得しました\n", pchActionName);
-		printf_s(buf);
+		std::cout << "正常に" << pchActionName << "ハンドルを取得しました" << std::endl;
 	}
 }
 
@@ -175,6 +159,7 @@ MATRIX OpenvrForDXLib::GetProjectionMatrix(vr::EVREye eye) {
 	return m_pos;
 }
 
+//値計算のみ
 MATRIX OpenvrForDXLib::GetViewMatrix(vr::EVREye eye) {
 	Matrix4 matMVP;
 	matMVP = GetCurrentViewProjectionMatrix(eye);
@@ -195,33 +180,19 @@ void OpenvrForDXLib::UpdateHMDMatrixPose()
 	if (!m_pHMD)
 		return;
 
+	/// openVRのデータを更新
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
-	m_iValidPoseCount = 0;
-	m_strPoseClasses = "";
+	/// openVRのデータを扱いやすいようにMatrix4に変換して格納
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
-
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
-			m_iValidPoseCount++;
 			m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
-			if (m_rDevClassChar[nDevice] == 0)
-			{
-				switch (m_pHMD->GetTrackedDeviceClass(nDevice))
-				{
-				case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; break;
-				case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
-				case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-				case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
-				case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
-				default:                                       m_rDevClassChar[nDevice] = '?'; break;
-				}
-			}
-			m_strPoseClasses += m_rDevClassChar[nDevice];
 		}
 	}
 
+	/// HMDのデータをm_mat4HMDPoseに格納
 	if (m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
 	{
 		m_mat4HMDPose = m_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
@@ -229,9 +200,8 @@ void OpenvrForDXLib::UpdateHMDMatrixPose()
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Converts a SteamVR matrix to our local matrix class
-//-----------------------------------------------------------------------------
+
+//SteamVR の行列をローカルの行列クラスに変換します。(steamVRから取得したデータを列ベクトルから行ベクトルへ変換した後4x4行列にする)
 Matrix4 OpenvrForDXLib::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& matPose)
 {
 	Matrix4 matrixObj(
@@ -243,10 +213,8 @@ Matrix4 OpenvrForDXLib::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& m
 	return matrixObj;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Gets a Current View Projection Matrix with respect to nEye,
-//          which may be an Eye_Left or an Eye_Right.
-//-----------------------------------------------------------------------------
+
+//Eye_Left または Eye_Right である nEye を基準とした現在のビュープロジェクションマトリックスを取得します．
 Matrix4 OpenvrForDXLib::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 {
 	Matrix4 matMVP;
@@ -563,33 +531,4 @@ void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3]);
 	DrawSphere3D(VGet(controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3])
 		, 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 0, 0), TRUE);
-}
-
-ActionPose::ActionPose(std::string actionPath)
-{
-	path = actionPath;
-	GetActionHandle();
-}
-
-bool ActionPose::UpdateActionData()
-{
-	vr::EVRInputError inputError = vr::VRInput()->GetPoseActionDataForNextFrame(m_actionHandle, vr::TrackingUniverseStanding, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle);
-	return (inputError == vr::VRInputError_None) ? true : false;
-}
-
-Matrix4 ActionPose::GetPose()
-{
-	Matrix4 matrixObj(
-		actionData.pose.mDeviceToAbsoluteTracking.m[0][0], actionData.pose.mDeviceToAbsoluteTracking.m[1][0], actionData.pose.mDeviceToAbsoluteTracking.m[2][0], 0.0,
-		actionData.pose.mDeviceToAbsoluteTracking.m[0][1], actionData.pose.mDeviceToAbsoluteTracking.m[1][1], actionData.pose.mDeviceToAbsoluteTracking.m[2][1], 0.0,
-		actionData.pose.mDeviceToAbsoluteTracking.m[0][2], actionData.pose.mDeviceToAbsoluteTracking.m[1][2], actionData.pose.mDeviceToAbsoluteTracking.m[2][2], 0.0,
-		actionData.pose.mDeviceToAbsoluteTracking.m[0][3], actionData.pose.mDeviceToAbsoluteTracking.m[1][3], actionData.pose.mDeviceToAbsoluteTracking.m[2][3], 1.0f
-	);
-	return Matrix4();
-}
-
-bool ActionPose::GetActionHandle()
-{
-	vr::EVRInputError inputError = vr::VRInput()->GetActionHandle(path.c_str(), &m_actionHandle);
-	return (inputError == vr::VRInputError_None) ? true : false;
 }
