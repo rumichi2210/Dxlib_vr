@@ -32,7 +32,7 @@ public:
 		this->value = DxLib::MAdd(this->value, obj.value);
 		return this->value;
 	}
-	VR_MATRIX operator-(VR_MATRIX obj)  { return VR_MATRIX(MSub(this->value, obj.value)); }
+	VR_MATRIX operator-(VR_MATRIX obj) { return VR_MATRIX(MSub(this->value, obj.value)); }
 	VR_MATRIX operator-=(VR_MATRIX obj) noexcept {
 		this->value = MSub(this->value, obj.value);
 		return this->value;
@@ -53,36 +53,29 @@ private:
 	vr::IVRSystem* m_pHMD = NULL;
 	vr::EVRInitError error = vr::VRInitError_None;//openVRのエラー格納用
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];//openVRから取得する生データの格納(右手座標系)
-	vr::Texture_t eyeTexLeft;//VRに送る左目用の画像
-	vr::Texture_t eyeTexRight;//VRに送る右目用の画像
 
 	/// 処理に使用するVRデータ
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 
 	/// HMDに描画する際の最適画面サイズ
-	uint32_t hmdWidth;
-	uint32_t hmdHeight;
+	uint32_t hmdWidth = 0;
+	uint32_t hmdHeight = 0;
 
 	/// カメラ設定用
-	Matrix4 m_mat4eyePosLeft = {};
-	Matrix4 m_mat4eyePosRight = {};
-	Matrix4 m_mat4ProjectionLeft = {};
-	Matrix4 m_mat4ProjectionRight = {};
-	Matrix4 m_mat4HMDPose = {};
+	Matrix4 m_mat4eyePosLeft = Matrix4();
+	Matrix4 m_mat4eyePosRight = Matrix4();
+	Matrix4 m_mat4HMDPose = Matrix4();
 
-	float m_fNearClip = 0.1f;
-	float m_fFarClip = 15000.0f;
+	float m_fNearClip;
+	float m_fFarClip;
 
 
 
 	/// IVRInput用のデータ///
-	// Steamアプリケーションキーの取得
-	char applicationKey[vr::k_unMaxApplicationKeyLength];
-
 	// 実行ファイルからの相対パスが設定されていることを確認してください。
-	const char* manifestPath = "../../vr_binding/actions.json";
+	std::string manifestPath = "../../vr_binding/actions.json";
 	vr::VRActionSetHandle_t m_actionSet = vr::k_ulInvalidActionSetHandle;
-	const char* actionSetPath = "/actions/main";
+	std::string actionSetPath = "/actions/main";
 
 	/// [Tips]
 	/// IVRInputから位置などのデータ(pose)を取得するのは推奨しません。
@@ -90,30 +83,30 @@ private:
 	/// 一般的なトラッカー(フルトラッキングデバイスなどのボタン入力を持たないデバイス)ではm_rmat4DevicePoseのデータを直接使用することをおすすめします。
 
 	vr::VRActionHandle_t m_actionSelect = vr::k_ulInvalidActionHandle;
-	const char* actionSelectPath = "/actions/main/in/Select";
+	std::string actionSelectPath = "/actions/main/in/Select";
 
 	vr::VRActionHandle_t m_actionMove = vr::k_ulInvalidActionHandle;
-	const char* actionMovePath = "/actions/main/in/Move";
+	std::string actionMovePath = "/actions/main/in/Move";
 
 	vr::VRActionHandle_t m_actionCancel = vr::k_ulInvalidActionHandle;
-	const char* actionCancelPath = "/actions/main/in/Cancel";
+	std::string actionCancelPath = "/actions/main/in/Cancel";
 
 	vr::VRActionHandle_t m_actionDecision = vr::k_ulInvalidActionHandle;
-	const char* actionDecisionPath = "/actions/main/in/Decision";
+	std::string actionDecisionPath = "/actions/main/in/Decision";
 
 	vr::VRActionHandle_t m_actionControllerLeft = vr::k_ulInvalidActionHandle;
-	const char* actionControllerLeftPath = "/actions/main/in/Controller_Left";
+	std::string actionControllerLeftPath = "/actions/main/in/Controller_Left";
 	vr::InputPoseActionData_t controllerLeftPoseData;
 
 	vr::VRActionHandle_t m_actionControllerRight = vr::k_ulInvalidActionHandle;
-	const char* actionControllerRightPath = "/actions/main/in/Controller_Right";
+	std::string actionControllerRightPath = "/actions/main/in/Controller_Right";
 	vr::InputPoseActionData_t controllerRightPoseData;
 
 	vr::VRInputValueHandle_t m_inputHandLeftPath = vr::k_ulInvalidInputValueHandle;
-	const char* inputHandLeftPath = "/user/hand/left";
+	std::string inputHandLeftPath = "/user/hand/left";
 
 	vr::VRInputValueHandle_t m_inputHandRightPath = vr::k_ulInvalidInputValueHandle;
-	const char* inputHandRightPath = "/user/hand/right";
+	std::string inputHandRightPath = "/user/hand/right";
 
 
 	inline bool fileExists(const std::string& fileName) {
@@ -121,9 +114,6 @@ private:
 		return (stat(fileName.c_str(), &buff) == 0);
 	}
 
-
-	// nEyeを基準としたMatrixProjectionEyeを取得します。
-	Matrix4 GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye);
 
 	// nEyeを基準としたHMDMatrixPoseEyeを取得します。
 	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
@@ -139,28 +129,30 @@ private:
 	void UpdateHMDMatrixPose();
 
 	// トラッキングフレームを解析し、その位置/回転/イベントを表示します。
-	// filterIndex に-1 以外を指定すると、特定のデバイスのデータのみを表示する。
-	void ParseTrackingFrame(int filterIndex);
+	void ParseTrackingFrame();
 
 	//接続機器の情報をCUIに一括表示
 	void DeviceInfoBatchDisplay();
-public:
-	OpenvrForDXLib();
-	~OpenvrForDXLib();
 
 	//vr::VRActionHandle_tで定義したものしか使用できません
-	void GetActionHandleCheck(const char* pchActionName, vr::VRActionHandle_t* pHandle);
+	void GetActionHandle(std::string actionName,vr::VRActionHandle_t* pHandle);
+public:
+	OpenvrForDXLib(float nearClip, float farClip);
+	~OpenvrForDXLib();
 
+	// nEyeを基準としたMatrixProjectionEyeを取得します。
 	MATRIX GetProjectionMatrix(vr::EVREye eye);
 	MATRIX GetViewMatrix(vr::EVREye eye);
 	int GetHMDWidth() { return hmdWidth; }
 	int GetHMDHeight() { return hmdHeight; }
+
 	//HMDで描画する
 	void PutHMD(ID3D11Texture2D* texte, vr::EVREye eye);
 
 	//デバイスの状態を一括で取り込む
 	void UpdateState();
 
+	//OpenVRが正常に動作しているかを取得する
 	bool vrCheck() { return (error == vr::VRInitError_None) ? true : false; }
 
 };

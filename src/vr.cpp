@@ -1,7 +1,10 @@
 #include "vr.hpp"
 
-OpenvrForDXLib::OpenvrForDXLib()
+OpenvrForDXLib::OpenvrForDXLib(float nearClip, float farClip)
 {
+	m_fNearClip = nearClip;
+	m_fFarClip = farClip;
+
 	m_pHMD = vr::VR_Init(&error, vr::VRApplication_Scene);
 	if (error != vr::VRInitError_None) {
 		m_pHMD = NULL;
@@ -34,7 +37,7 @@ OpenvrForDXLib::OpenvrForDXLib()
 	}
 
 	// 新しいIVRInputハンドル読み込み
-	inputError = vr::VRInput()->GetActionSetHandle(actionSetPath, &m_actionSet);
+	inputError = vr::VRInput()->GetActionSetHandle(actionSetPath.c_str(), &m_actionSet);
 	if (inputError != vr::VRInputError_None) {
 		std::cout << "アクションセットハンドルが取得できません:" << inputError << std::endl;
 	}
@@ -43,28 +46,28 @@ OpenvrForDXLib::OpenvrForDXLib()
 	}
 
 	// 左手用ハンドル
-	GetActionHandleCheck(inputHandLeftPath, &m_inputHandLeftPath);
+	GetActionHandle(inputHandLeftPath, &m_inputHandLeftPath);
 
 	// 右手用ハンドル
-	GetActionHandleCheck(inputHandRightPath, &m_inputHandRightPath);
+	GetActionHandle(inputHandRightPath, &m_inputHandRightPath);
 
 	// 選択用ハンドル
-	GetActionHandleCheck(actionSelectPath, &m_actionSelect);
+	GetActionHandle(actionSelectPath, &m_actionSelect);
 
 	// 移動用ハンドル
-	GetActionHandleCheck(actionMovePath, &m_actionMove);
+	GetActionHandle(actionMovePath, &m_actionMove);
 
 	// キャンセル用ハンドル
-	GetActionHandleCheck(actionCancelPath, &m_actionCancel);
+	GetActionHandle(actionCancelPath, &m_actionCancel);
 
 	// 決定用ハンドル
-	GetActionHandleCheck(actionDecisionPath, &m_actionDecision);
+	GetActionHandle(actionDecisionPath, &m_actionDecision);
 
 	// 右コントローラー用ハンドル
-	GetActionHandleCheck(actionControllerRightPath, &m_actionControllerRight);
+	GetActionHandle(actionControllerRightPath, &m_actionControllerRight);
 
 	//　左コントローラー用ハンドル
-	GetActionHandleCheck(actionControllerLeftPath, &m_actionControllerLeft);
+	GetActionHandle(actionControllerLeftPath, &m_actionControllerLeft);
 
 	//デバイス情報を一括表示
 	DeviceInfoBatchDisplay();
@@ -96,35 +99,21 @@ bool OpenvrForDXLib::BInitCompositor()
 	return true;
 }
 
-void OpenvrForDXLib::GetActionHandleCheck(const char* pchActionName, vr::VRActionHandle_t* pHandle)
+void OpenvrForDXLib::GetActionHandle(std::string actionName, vr::VRActionHandle_t* pHandle)
 {
-	vr::EVRInputError inputError = vr::VRInput()->GetActionHandle(pchActionName, pHandle);
+	vr::EVRInputError inputError = vr::VRInput()->GetActionHandle(actionName.c_str(), pHandle);
 	if (inputError != vr::VRInputError_None) {
 		std::cout << "エラーアクションハンドルを取得できません:" << inputError << std::endl;
 	}
 	else {
-		std::cout << "正常に" << pchActionName << "ハンドルを取得しました" << std::endl;
+		std::cout << "正常に" << actionName << "ハンドルを取得しました" << std::endl;
 	}
 }
 
 void OpenvrForDXLib::SetupCameras()
 {
-	m_mat4ProjectionLeft = GetHMDMatrixProjectionEye(vr::Eye_Left);
-	m_mat4ProjectionRight = GetHMDMatrixProjectionEye(vr::Eye_Right);
 	m_mat4eyePosLeft = GetHMDMatrixPoseEye(vr::Eye_Left);
 	m_mat4eyePosRight = GetHMDMatrixPoseEye(vr::Eye_Right);
-}
-
-Matrix4 OpenvrForDXLib::GetHMDMatrixProjectionEye(vr::Hmd_Eye nEye)
-{
-	vr::HmdMatrix44_t mat = m_pHMD->GetProjectionMatrix(nEye, m_fNearClip, m_fFarClip);
-
-	return Matrix4(
-		mat.m[0][0], mat.m[1][0], mat.m[2][0], mat.m[3][0],
-		mat.m[0][1], mat.m[1][1], mat.m[2][1], mat.m[3][1],
-		mat.m[0][2], mat.m[1][2], mat.m[2][2], mat.m[3][2],
-		mat.m[0][3], mat.m[1][3], mat.m[2][3], mat.m[3][3]
-	);
 }
 
 Matrix4 OpenvrForDXLib::GetHMDMatrixPoseEye(vr::Hmd_Eye nEye)
@@ -138,7 +127,6 @@ Matrix4 OpenvrForDXLib::GetHMDMatrixPoseEye(vr::Hmd_Eye nEye)
 	);
 	return matrixObj.invert();
 }
-
 
 MATRIX OpenvrForDXLib::GetProjectionMatrix(vr::EVREye eye) {
 	float fLeft, fRight, fTop, fBottom;
@@ -231,27 +219,24 @@ Matrix4 OpenvrForDXLib::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 }
 
 void OpenvrForDXLib::PutHMD(ID3D11Texture2D* texte, vr::EVREye eye) {
+	vr::Texture_t eyeTex = { (void*)texte, vr::ETextureType::TextureType_DirectX,vr::EColorSpace::ColorSpace_Auto };
 	if (eye == vr::EVREye::Eye_Left) {
-		eyeTexLeft = { (void*)texte, vr::ETextureType::TextureType_DirectX,vr::EColorSpace::ColorSpace_Auto };
-		vr::VRCompositor()->Submit(vr::EVREye::Eye_Left, &eyeTexLeft);
+		vr::VRCompositor()->Submit(vr::EVREye::Eye_Left, &eyeTex);
 	}
 	else {
-		eyeTexRight = { (void*)texte, vr::ETextureType::TextureType_DirectX,vr::EColorSpace::ColorSpace_Auto };
-		vr::VRCompositor()->Submit(vr::EVREye::Eye_Right, &eyeTexRight);
+		vr::VRCompositor()->Submit(vr::EVREye::Eye_Right, &eyeTex);
 	}
 }
 
 void OpenvrForDXLib::UpdateState()
 {
 	UpdateHMDMatrixPose();
-	ParseTrackingFrame(-1);
+	ParseTrackingFrame();
 }
 
 void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 
-	char buf[1024];
-	sprintf_s(buf, sizeof(buf), "\nDevice list:\n---------------------------\n");
-	printf_s(buf);
+	std::cout << "Device list:---------------------------" << std::endl;
 
 	// 接続されたすべてのデバイスをループし、それらに関するいくつかの情報を表示する
 	for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
@@ -265,34 +250,27 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 		switch (trackedDeviceClass) {
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_Invalid:
 			// 無効なクラスのために何かをする
-			sprintf_s(buf, sizeof(buf), "デバイス %d: クラス[無効］", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[無効］" << std::endl;
 			break;
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_HMD:
 			// HMDはここで行い、コントローラ次のケースブロックにて行います。
-			char buf[1024];
-			sprintf_s(buf, sizeof(buf), "デバイス %d: Class: [HMD]", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[HMD］" << std::endl;
 			break;
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
 			// コントローラのためのものをここでやる
-			sprintf_s(buf, sizeof(buf), "デバイス %d: クラス: [コントローラー]", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[コントローラー］" << std::endl;
 			break;
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
 			// 一般的なトラッカーのためのものをここで行う
-			sprintf_s(buf, sizeof(buf), "デバイス %d: クラス: [一般的なトラッカー]", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[一般的なコントローラー］" << std::endl;
 			break;
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_TrackingReference:
 			/// トラッキングリファレンスのために、ここで何かをする
-			sprintf_s(buf, sizeof(buf), "デバイス %d: クラス: [トラッキングリファレンス]", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[トラッキングリファレンス］" << std::endl;
 			break;
 		case vr::ETrackedDeviceClass::TrackedDeviceClass_DisplayRedirect:
 			/// ディスプレイのリダイレクトに必要なものをここで行う
-			sprintf_s(buf, sizeof(buf), "デバイス %d: クラス: [DisplayRedirect]", unDevice);
-			printf_s(buf);
+			std::cout << "デバイス" << unDevice << "クラス[DisplayRedirect］" << std::endl;
 			break;
 		}
 
@@ -304,12 +282,10 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 		role = vr::VRSystem()->GetInt32TrackedDeviceProperty(unDevice, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, &pError);
 		if (pError == vr::ETrackedPropertyError::TrackedProp_Success) {
 			if (role == vr::ETrackedControllerRole::TrackedControllerRole_Invalid) {
-				sprintf_s(buf, sizeof(buf), " | 無効な役割 (?): %d", role);
-				printf_s(buf);
+				std::cout << role << ":無効" << std::endl;
 			}
 			else {
-				sprintf_s(buf, sizeof(buf), " | 役割: %d", role);
-				printf_s(buf);
+				std::cout << role << ":有効" << std::endl;
 			}
 		}
 
@@ -324,12 +300,9 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 
 		bool canPowerOff = vr::VRSystem()->GetBoolTrackedDeviceProperty(unDevice, vr::ETrackedDeviceProperty::Prop_DeviceCanPowerOff_Bool);
 
-		sprintf_s(buf, sizeof(buf), " | マニュファクチャリング: %s | モデル: %s | シリアル: %s | 電源オフが可能かどうかの有無: %d\n", manufacturer, modelnumber, serialnumber, canPowerOff);
-		printf_s(buf);
+		std::cout << "| マニュファクチャリング:" << manufacturer << "| モデル: " << modelnumber << " 電源オフが可能かどうかの有無:" << canPowerOff << std::endl;
 	}
-	sprintf_s(buf, sizeof(buf), "---------------------------\nデバイス一覧の終了\n\n");
-	printf_s(buf);
-
+	std::cout << "---------------------------デバイス一覧の終了" << std::endl;
 }
 
 void MATRIX4_Print(Matrix4 val) {
@@ -339,13 +312,9 @@ void MATRIX4_Print(Matrix4 val) {
 	}
 }
 
-void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
+void OpenvrForDXLib::ParseTrackingFrame() {
 
-	char buf[1024];
 	vr::EVRInputError inputError;
-
-	sprintf_s(buf, sizeof(buf), "\n");
-	printf_s(buf);
 
 	// SteamVR のアクションの状態を処理する 
 	// UpdateActionState はフレームごとに呼び出され、アクションの状態自体を更新する。
@@ -355,12 +324,10 @@ void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
 	actionSet.ulActionSet = m_actionSet;
 	inputError = vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 	if (inputError == vr::VRInputError_None) {
-		sprintf_s(buf, sizeof(buf), "%s | UpdateActionState(): Ok\n", actionSetPath);
-		printf_s(buf);
+		std::cout << actionSetPath << " | UpdateActionState(): Ok" << std::endl;
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "%s | UpdateActionState(): Error: %d\n", actionSetPath, inputError);
-		printf_s(buf);
+		std::cout << actionSetPath << " | UpdateActionState():Error:" << inputError << std::endl;
 	}
 
 	//// アナログデータ取得
@@ -506,24 +473,20 @@ void OpenvrForDXLib::ParseTrackingFrame(int filterIndex) {
 	// 右コントローラーのポーズを取得
 	inputError = vr::VRInput()->GetPoseActionDataForNextFrame(m_actionControllerRight, vr::TrackingUniverseStanding, &controllerRightPoseData, sizeof(controllerRightPoseData), vr::k_ulInvalidInputValueHandle);
 	if (inputError == vr::VRInputError_None) {
-		sprintf_s(buf, sizeof(buf), "アクションデータを取得できました:%s\n", actionControllerRightPath);
-		printf_s(buf);
+		std::cout << "アクションデータを取得できました:\n" << actionControllerRightPath << std::endl;
 
 		if (controllerRightPoseData.bActive) {
 			vr::VRInputValueHandle_t activeOrigin = controllerRightPoseData.activeOrigin;
 			bool bPoseIsValid = controllerRightPoseData.pose.bPoseIsValid;
 			bool bDeviceIsConnected = controllerRightPoseData.pose.bDeviceIsConnected;
-			sprintf_s(buf, sizeof(buf), "Origin: %d 有効かどうか: %d デバイスは接続済みかどうか: %d\n", (int)activeOrigin, bPoseIsValid, bDeviceIsConnected);
-			printf_s(buf);
+			std::cout << "Origin:" << (int)activeOrigin << "有効かどうか:" << bPoseIsValid << "デバイスは接続済みかどうか :" << bDeviceIsConnected << std::endl;
 		}
 		else {
-			sprintf_s(buf, sizeof(buf), "%s | action not avail to be bound\n", actionControllerRightPath);
-			printf_s(buf);
+			std::cout << actionControllerRightPath << " | action not avail to be bound\n" << std::endl;
 		}
 	}
 	else {
-		sprintf_s(buf, sizeof(buf), "アクションデータを取得できませんでした%s | Error: %d\n", actionControllerRightPath, inputError);
-		printf_s(buf);
+		std::cout << "アクションデータを取得できませんでした" << actionControllerRightPath << "| Error:"<<inputError << std::endl;
 	}
 
 	printf("%f,%f,%f", controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3]

@@ -2,7 +2,6 @@
 #include "vr.hpp"
 #include <memory>
 
-
 int vrEyeRight;
 int vrEyeLeft;
 int stage;
@@ -13,11 +12,7 @@ int chara;
 constexpr SMALL_RECT rect{ 0, 0, 200, 80 };
 constexpr CONSOLE_CURSOR_INFO cursor{ 1, FALSE };
 CONSOLE_CURSOR_INFO init;
-/*コンソール用*/
-char TitleBuffer[512];
-HWND ConsoleWindow;
-RECT WindowRect;
-FILE* fp;
+
 
 
 void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float cameraScreenCenterX, float cameraScreenCenterY)
@@ -35,6 +30,11 @@ void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float 
 
 
 void InitConsole() {
+	char TitleBuffer[512];
+	HWND ConsoleWindow;
+	RECT WindowRect;
+	FILE* fp;
+
 	AllocConsole();
 	SetConsoleTitle("Console Window");
 	freopen_s(&fp, "CONOUT$", "w", stdout); /* 標準出力(stdout)を新しいコンソールに向ける */
@@ -68,14 +68,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	if (DxLib::SetWriteZBuffer3D(TRUE) == -1) { return 0; }// Zバッファへの書き込みを有効にする。
 
 	InitConsole();
-	auto vrHandler = std::make_unique<OpenvrForDXLib>();
-	if (!vrHandler|| !vrHandler->vrCheck()) {
-		MessageBox(NULL, TEXT("警告"),TEXT("openVRを初期化できませんでした"), MB_OK);
+	auto vrHandler = std::make_unique<OpenvrForDXLib>(0.1f, 15000.0f);
+	if (!vrHandler || !vrHandler->vrCheck()) {
+		MessageBox(NULL, TEXT("警告"), TEXT("openVRを初期化できませんでした"), MB_OK);
 		DxLib::DxLib_End();
 		return 0;
 	}
 
-	DxLib::SetCreateDrawValidGraphMultiSample(8,8);
+	DxLib::SetCreateDrawValidGraphMultiSample(8, 8);
 	vrEyeRight = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 	vrEyeLeft = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 
