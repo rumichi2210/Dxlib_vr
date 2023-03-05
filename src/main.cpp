@@ -2,10 +2,14 @@
 #include "vr.hpp"
 #include <memory>
 
-int vrEyeRight;
-int vrEyeLeft;
+//int vrEyeRight;
+//int vrEyeLeft;
 int stage;
 int chara;
+
+inline void modelDraw() {
+	MV1DrawModel(stage);
+}
 
 
 //コンソールスクリーンサイズ
@@ -13,40 +17,17 @@ constexpr SMALL_RECT rect{ 0, 0, 200, 80 };
 constexpr CONSOLE_CURSOR_INFO cursor{ 1, FALSE };
 CONSOLE_CURSOR_INFO init;
 
-void SetMainCamera() {
+void SetMainCamera(float nearClip, float farClip, VECTOR position, VECTOR target) {
 	// 射影行列を作成する
 	MATRIX mat_projective;//結果を格納する行列のアドレス
-	//float fov;//視野角、デフォルト値は DEFAULT_FOV
-	float zn;// : Near Clip の値
-	float zf;// : Far Clip の値
-	CreatePerspectiveFovMatrixRH(&mat_projective, DEFAULT_FOV,zn,zf);
+	CreatePerspectiveFovMatrixRH(&mat_projective, DEFAULT_FOV, nearClip, farClip);
 	SetupCamera_ProjectionMatrix(mat_projective);// 射影行列を直接設定する
 
 	MATRIX mat_view;// ビューマトリクス
-	VECTOR vec_from = VGet(0, 200, 0);   // カメラの位置
-	VECTOR vec_lookat = VGet(0, 0, 0);   // カメラの注視点
-	VECTOR vec_up = VGet(0, 0, 1);       // カメラの上方向
-
-	//ビュー行列の作成
-	CreateLookAtMatrixRH(&mat_view, &vec_from, &vec_lookat, &vec_up);
+	VECTOR vec_up = VGet(0.0f, 1.0f, 0.0f);       // カメラの上方向
+	CreateLookAtMatrixRH(&mat_view, &position, &target, &vec_up);
 	SetCameraViewMatrix(mat_view);//ビュー行列を直接設定する
 }
-
-
-
-void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float cameraScreenCenterX, float cameraScreenCenterY)
-{
-	if (nEye == vr::Eye_Right) { DxLib::SetDrawScreen(vrEyeRight); }
-	if (nEye == vr::Eye_Left) { DxLib::SetDrawScreen(vrEyeLeft); }
-	DxLib::ClearDrawScreenZBuffer();
-	DxLib::ClearDrawScreen();
-	DxLib::SetCameraScreenCenter(cameraScreenCenterX, cameraScreenCenterY); //カメラが見ている映像の中心座標を再設定
-	DxLib::SetupCamera_ProjectionMatrix(projection);
-	DxLib::SetCameraViewMatrix(view);
-	DxLib::MV1DrawModel(stage);
-	DxLib::SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
-}
-
 
 void InitConsole() {
 	char TitleBuffer[512];
@@ -87,16 +68,13 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	if (DxLib::SetWriteZBuffer3D(TRUE) == -1) { return 0; }// Zバッファへの書き込みを有効にする。
 
 	InitConsole();
+	DxLib::SetCreateDrawValidGraphMultiSample(8, 8);
 	auto vrHandler = std::make_unique<OpenvrForDXLib>(0.1f, 15000.0f);
 	if (!vrHandler || !vrHandler->vrCheck()) {
 		MessageBox(NULL, TEXT("警告"), TEXT("openVRを初期化できませんでした"), MB_OK);
 		DxLib::DxLib_End();
 		return 0;
 	}
-
-	DxLib::SetCreateDrawValidGraphMultiSample(8, 8);
-	vrEyeRight = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
-	vrEyeLeft = DxLib::MakeScreen(vrHandler->GetHMDWidth(), vrHandler->GetHMDHeight(), FALSE);
 
 	stage = DxLib::MV1LoadModel(".\\res\\mmd_batokin_island\\batokin_island5.x");
 	for (int i = 0; i < DxLib::MV1GetMeshNum(stage); i++)
@@ -111,19 +89,35 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	system("cls");//画面をクリア
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
 
+
+	float sx=0.0f;
+	float sy=50.0f;
+	float sz=100.0f;
+
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
 		vrHandler->UpdateState();
-		UpdateCameraScreen(vr::Eye_Right, vrHandler->GetViewMatrix(vr::Eye_Right), vrHandler->GetProjectionMatrix(vr::Eye_Right), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
-		UpdateCameraScreen(vr::Eye_Left, vrHandler->GetViewMatrix(vr::Eye_Left), vrHandler->GetProjectionMatrix(vr::Eye_Left), vrHandler->GetHMDWidth() / 2.0f, vrHandler->GetHMDHeight() / 2.0f);
-		vrHandler->PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeRight), vr::Eye_Right);
-		vrHandler->PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(vrEyeLeft), vr::Eye_Left);
+		vrHandler->UpdateVRScreen(vr::Eye_Right, modelDraw);
+		vrHandler->UpdateVRScreen(vr::Eye_Left, modelDraw);
 
-		DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
 		DxLib::SetCameraScreenCenter(1280, 720);
-		DxLib::MV1DrawModel(stage);
-
+		//DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
+		//SetCameraPositionAndTargetAndUpVec(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f), VGet(0.0f, 0.0f, -1.0f));
+		
+		//DxLib::SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
+		SetMainCamera(0.1f, 15000.0f, VGet(sx, sy, sz), VGet(0.0f, 0.0f, 0.0f));
+		DrawSphere3D(vrHandler->GetHMDPos(), 1.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
+		//Yが上
+		modelDraw();
+		if (CheckHitKey(KEY_INPUT_A) != 0) { sx-=0.1f; }
+		if (CheckHitKey(KEY_INPUT_D) != 0) { sx += 0.1f; }
+		if (CheckHitKey(KEY_INPUT_S) != 0) { sy -= 0.1f; }
+		if (CheckHitKey(KEY_INPUT_W) != 0) { sy += 0.1f; }
+		if (CheckHitKey(KEY_INPUT_Q) != 0) { sz -= 0.1f; }
+		if (CheckHitKey(KEY_INPUT_E) != 0) { sz += 0.1f; }
 		if (CheckHitKey(KEY_INPUT_F10) != 0) { return 0; }
+
+		DrawFormatString(0, 0, GetColor(255, 255, 255), "sx=%f,sy=%f,sz+%f", sx,sy,sz);
 	}
 
 	DxLib::DxLib_End();

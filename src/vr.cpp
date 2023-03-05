@@ -75,6 +75,9 @@ OpenvrForDXLib::OpenvrForDXLib(float nearClip, float farClip)
 	//HMDの画面サイズ(片目)を取得
 	m_pHMD->GetRecommendedRenderTargetSize(&hmdWidth, &hmdHeight);
 	SetupCameras();
+
+	eyeRightScreen = DxLib::MakeScreen(hmdWidth, hmdHeight, FALSE);
+	eyeLeftScreen = DxLib::MakeScreen(hmdWidth, hmdHeight, FALSE);
 }
 
 OpenvrForDXLib::~OpenvrForDXLib()
@@ -305,13 +308,6 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 	std::cout << "---------------------------デバイス一覧の終了" << std::endl;
 }
 
-void MATRIX4_Print(Matrix4 val) {
-	const float* pos = val.get();
-	for (int i = 0; i < 16; i++) {
-		printf("pos[%d]=%f\n", i, pos[i]);
-	}
-}
-
 void OpenvrForDXLib::ParseTrackingFrame() {
 
 	vr::EVRInputError inputError;
@@ -486,12 +482,41 @@ void OpenvrForDXLib::ParseTrackingFrame() {
 		}
 	}
 	else {
-		std::cout << "アクションデータを取得できませんでした" << actionControllerRightPath << "| Error:"<<inputError << std::endl;
+		std::cout << "アクションデータを取得できませんでした" << actionControllerRightPath << "| Error:" << inputError << std::endl;
 	}
 
 	printf("%f,%f,%f", controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3]
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3]
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3]);
-	DrawSphere3D(VGet(controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[0][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3], controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3])
-		, 80.0f, 32, GetColor(255, 0, 0), GetColor(255, 0, 0), TRUE);
+}
+
+
+void OpenvrForDXLib::UpdateVRScreen(vr::Hmd_Eye nEye, void (*DrawTask)(void)) {
+	MATRIX projection;
+	MATRIX view;
+	if (nEye == vr::Eye_Right) {
+		DxLib::SetDrawScreen(eyeRightScreen);
+		projection = GetProjectionMatrix(vr::Eye_Right);
+		view = GetViewMatrix(vr::Eye_Right);
+	}
+	else {
+		DxLib::SetDrawScreen(eyeLeftScreen);
+		projection = GetProjectionMatrix(vr::Eye_Left);
+		view = GetViewMatrix(vr::Eye_Left);
+	}
+	DxLib::ClearDrawScreenZBuffer();
+	DxLib::ClearDrawScreen();
+	DxLib::SetCameraScreenCenter((float)hmdWidth / 2.0f, (float)hmdHeight / 2.0f); //カメラが見ている映像の中心座標を再設定
+	DxLib::SetupCamera_ProjectionMatrix(projection);
+	DxLib::SetCameraViewMatrix(view);
+	DrawTask();//描画処理
+	DxLib::SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
+
+	if (nEye == vr::Eye_Right) {
+		PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(eyeRightScreen), vr::Eye_Right);
+	}
+	else {
+		PutHMD((ID3D11Texture2D*)DxLib::GetGraphID3D11Texture2D(eyeLeftScreen), vr::Eye_Left);
+	}
+
 }

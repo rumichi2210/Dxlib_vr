@@ -66,8 +66,13 @@ private:
 	Matrix4 m_mat4eyePosRight = Matrix4();
 	Matrix4 m_mat4HMDPose = Matrix4();
 
+	/// OpenVRとDXライブラリー共用の変数
 	float m_fNearClip;
 	float m_fFarClip;
+
+	/// DXライブラリー専用の変数
+	int eyeRightScreen;
+	int eyeLeftScreen;
 
 
 
@@ -135,19 +140,23 @@ private:
 	void DeviceInfoBatchDisplay();
 
 	//vr::VRActionHandle_tで定義したものしか使用できません
-	void GetActionHandle(std::string actionName,vr::VRActionHandle_t* pHandle);
-public:
-	OpenvrForDXLib(float nearClip, float farClip);
-	~OpenvrForDXLib();
+	void GetActionHandle(std::string actionName, vr::VRActionHandle_t* pHandle);
 
 	// nEyeを基準としたMatrixProjectionEyeを取得します。
 	MATRIX GetProjectionMatrix(vr::EVREye eye);
 	MATRIX GetViewMatrix(vr::EVREye eye);
-	int GetHMDWidth() { return hmdWidth; }
-	int GetHMDHeight() { return hmdHeight; }
 
 	//HMDで描画する
 	void PutHMD(ID3D11Texture2D* texte, vr::EVREye eye);
+public:
+	OpenvrForDXLib(float nearClip, float farClip);
+	~OpenvrForDXLib();
+
+	VECTOR GetHMDPos() {
+		const float* pos = m_rmat4DevicePose[0].get();
+		MATRIX m_pos{};
+		return VGet(pos[12],pos[13],pos[14]);
+	}
 
 	//デバイスの状態を一括で取り込む
 	void UpdateState();
@@ -155,9 +164,5 @@ public:
 	//OpenVRが正常に動作しているかを取得する
 	bool vrCheck() { return (error == vr::VRInitError_None) ? true : false; }
 
+	void UpdateVRScreen(vr::Hmd_Eye nEye, void (*DrawTask)(void));
 };
-
-
-
-
-
