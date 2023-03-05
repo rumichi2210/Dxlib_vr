@@ -13,6 +13,25 @@ constexpr SMALL_RECT rect{ 0, 0, 200, 80 };
 constexpr CONSOLE_CURSOR_INFO cursor{ 1, FALSE };
 CONSOLE_CURSOR_INFO init;
 
+void SetMainCamera() {
+	// 射影行列を作成する
+	MATRIX mat_projective;//結果を格納する行列のアドレス
+	//float fov;//視野角、デフォルト値は DEFAULT_FOV
+	float zn;// : Near Clip の値
+	float zf;// : Far Clip の値
+	CreatePerspectiveFovMatrixRH(&mat_projective, DEFAULT_FOV,zn,zf);
+	SetupCamera_ProjectionMatrix(mat_projective);// 射影行列を直接設定する
+
+	MATRIX mat_view;// ビューマトリクス
+	VECTOR vec_from = VGet(0, 200, 0);   // カメラの位置
+	VECTOR vec_lookat = VGet(0, 0, 0);   // カメラの注視点
+	VECTOR vec_up = VGet(0, 0, 1);       // カメラの上方向
+
+	//ビュー行列の作成
+	CreateLookAtMatrixRH(&mat_view, &vec_from, &vec_lookat, &vec_up);
+	SetCameraViewMatrix(mat_view);//ビュー行列を直接設定する
+}
+
 
 
 void UpdateCameraScreen(vr::Hmd_Eye nEye, MATRIX view, MATRIX projection, float cameraScreenCenterX, float cameraScreenCenterY)
