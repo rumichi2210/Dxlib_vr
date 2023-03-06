@@ -2,15 +2,20 @@
 #include "vr.hpp"
 #include <memory>
 
-//int vrEyeRight;
-//int vrEyeLeft;
 int stage;
-int chara;
 
 inline void modelDraw() {
-	MV1DrawModel(stage);
+	DxLib::MV1DrawModel(stage);
 }
 
+inline int vrLoadModel(const TCHAR* FileName) {
+	int temp = DxLib::MV1LoadModel(FileName);
+	for (int i = 0; i < DxLib::MV1GetMeshNum(temp); i++)
+	{
+		DxLib::MV1SetMeshBackCulling(temp, i, DX_CULLING_RIGHT);
+	}
+	return temp;
+}
 
 //コンソールスクリーンサイズ
 constexpr SMALL_RECT rect{ 0, 0, 200, 80 };
@@ -18,15 +23,14 @@ constexpr CONSOLE_CURSOR_INFO cursor{ 1, FALSE };
 CONSOLE_CURSOR_INFO init;
 
 void SetMainCamera(float nearClip, float farClip, VECTOR position, VECTOR target) {
-	// 射影行列を作成する
-	MATRIX mat_projective;//結果を格納する行列のアドレス
-	CreatePerspectiveFovMatrixRH(&mat_projective, DEFAULT_FOV, nearClip, farClip);
-	SetupCamera_ProjectionMatrix(mat_projective);// 射影行列を直接設定する
+	MATRIX mat_projective;//射影行列のアドレス
+	DxLib::CreatePerspectiveFovMatrixRH(&mat_projective, DEFAULT_FOV, nearClip, farClip);// 射影行列を作成する
+	DxLib::SetupCamera_ProjectionMatrix(mat_projective);// 射影行列を直接設定する
 
 	MATRIX mat_view;// ビューマトリクス
-	VECTOR vec_up = VGet(0.0f, 1.0f, 0.0f);       // カメラの上方向
-	CreateLookAtMatrixRH(&mat_view, &position, &target, &vec_up);
-	SetCameraViewMatrix(mat_view);//ビュー行列を直接設定する
+	VECTOR vec_up = VGet(0.0f, 1.0f, 0.0f);// カメラの上方向
+	DxLib::CreateLookAtMatrixRH(&mat_view, &position, &target, &vec_up);
+	DxLib::SetCameraViewMatrix(mat_view);//ビュー行列を直接設定する
 }
 
 void InitConsole() {
@@ -48,7 +52,6 @@ void InitConsole() {
 	GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &init); // カーソルの初期状態を得る。
 	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor); // カーソルを不可視化する。
 }
-
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);//メモリリーク検出->Debug時のみ有功になります
@@ -76,11 +79,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		return 0;
 	}
 
-	stage = DxLib::MV1LoadModel(".\\res\\mmd_batokin_island\\batokin_island5.x");
-	for (int i = 0; i < DxLib::MV1GetMeshNum(stage); i++)
-	{
-		DxLib::MV1SetMeshBackCulling(stage, i, DX_CULLING_RIGHT);
-	}
+	stage = vrLoadModel(".\\res\\mmd_batokin_island\\batokin_island5.x");
 	DxLib::MV1SetScale(stage, VGet(3.0f, 3.0f, 3.0f));
 	DxLib::MV1SetPosition(stage, VGet(0.0f, 0.0f, 0.0f));
 
@@ -89,27 +88,22 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 	system("cls");//画面をクリア
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{ 0,0 });
 
-
-	float sx=0.0f;
-	float sy=50.0f;
-	float sz=100.0f;
+	float sx = 0.0f;
+	float sy = 50.0f;
+	float sz = 100.0f;
 
 	// 裏画面を表画面に反映, メッセージ処理, 画面クリア, キーの更新)
 	while (DxLib::ScreenFlip() == 0 && DxLib::ProcessMessage() == 0 && DxLib::ClearDrawScreen() == 0) {
-		vrHandler->UpdateState();
+		vrHandler->UpdateState(VGet(0.0f,20.0f,0.0f));
 		vrHandler->UpdateVRScreen(vr::Eye_Right, modelDraw);
-		vrHandler->UpdateVRScreen(vr::Eye_Left, modelDraw);
+		vrHandler->UpdateVRScreen(vr::Eye_Left,modelDraw);
 
 		DxLib::SetCameraScreenCenter(1280, 720);
-		//DxLib::SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f));
-		//SetCameraPositionAndTargetAndUpVec(VGet(0.0f, 500.0f, 100.0f), VGet(0.0f, 0.0f, 0.0f), VGet(0.0f, 0.0f, -1.0f));
-		
-		//DxLib::SetDrawScreen(DX_SCREEN_BACK);//描画先を元に戻す
 		SetMainCamera(0.1f, 15000.0f, VGet(sx, sy, sz), VGet(0.0f, 0.0f, 0.0f));
-		DrawSphere3D(vrHandler->GetHMDPos(), 1.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
-		//Yが上
+		DxLib::DrawSphere3D(vrHandler->GetHMDPos(), 1.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
+
 		modelDraw();
-		if (CheckHitKey(KEY_INPUT_A) != 0) { sx-=0.1f; }
+		if (CheckHitKey(KEY_INPUT_A) != 0) { sx -= 0.1f; }
 		if (CheckHitKey(KEY_INPUT_D) != 0) { sx += 0.1f; }
 		if (CheckHitKey(KEY_INPUT_S) != 0) { sy -= 0.1f; }
 		if (CheckHitKey(KEY_INPUT_W) != 0) { sy += 0.1f; }
@@ -117,7 +111,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 		if (CheckHitKey(KEY_INPUT_E) != 0) { sz += 0.1f; }
 		if (CheckHitKey(KEY_INPUT_F10) != 0) { return 0; }
 
-		DrawFormatString(0, 0, GetColor(255, 255, 255), "sx=%f,sy=%f,sz+%f", sx,sy,sz);
+		DrawFormatString(0, 0, GetColor(255, 255, 255), "sx=%f,sy=%f,sz+%f", sx, sy, sz);
 	}
 
 	DxLib::DxLib_End();

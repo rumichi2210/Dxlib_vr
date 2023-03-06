@@ -150,7 +150,6 @@ MATRIX OpenvrForDXLib::GetProjectionMatrix(vr::EVREye eye) {
 	return m_pos;
 }
 
-//値計算のみ
 MATRIX OpenvrForDXLib::GetViewMatrix(vr::EVREye eye) {
 	Matrix4 matMVP;
 	matMVP = GetCurrentViewProjectionMatrix(eye);
@@ -163,10 +162,7 @@ MATRIX OpenvrForDXLib::GetViewMatrix(vr::EVREye eye) {
 	return m_pos;
 }
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void OpenvrForDXLib::UpdateHMDMatrixPose()
+void OpenvrForDXLib::UpdateVRMatrixPose(VECTOR basePos)
 {
 	if (!m_pHMD)
 		return;
@@ -180,6 +176,15 @@ void OpenvrForDXLib::UpdateHMDMatrixPose()
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 		{
 			m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+
+
+			Matrix4 baseMatrix(
+				0.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 0.0f,
+				basePos.x, basePos.y, basePos.z, 1.0f
+			);
+			m_rmat4DevicePose[nDevice] += baseMatrix;
 		}
 	}
 
@@ -191,8 +196,6 @@ void OpenvrForDXLib::UpdateHMDMatrixPose()
 	}
 }
 
-
-//SteamVR の行列をローカルの行列クラスに変換します。(steamVRから取得したデータを列ベクトルから行ベクトルへ変換した後4x4行列にする)
 Matrix4 OpenvrForDXLib::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& matPose)
 {
 	Matrix4 matrixObj(
@@ -204,8 +207,6 @@ Matrix4 OpenvrForDXLib::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& m
 	return matrixObj;
 }
 
-
-//Eye_Left または Eye_Right である nEye を基準とした現在のビュープロジェクションマトリックスを取得します．
 Matrix4 OpenvrForDXLib::GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye)
 {
 	Matrix4 matMVP;
@@ -231,9 +232,9 @@ void OpenvrForDXLib::PutHMD(ID3D11Texture2D* texte, vr::EVREye eye) {
 	}
 }
 
-void OpenvrForDXLib::UpdateState()
+void OpenvrForDXLib::UpdateState(VECTOR basePos)
 {
-	UpdateHMDMatrixPose();
+	UpdateVRMatrixPose(basePos);
 	ParseTrackingFrame();
 }
 
@@ -309,7 +310,7 @@ void OpenvrForDXLib::DeviceInfoBatchDisplay() {
 }
 
 void OpenvrForDXLib::ParseTrackingFrame() {
-
+	///basePosのデータは加算されていません。
 	vr::EVRInputError inputError;
 
 	// SteamVR のアクションの状態を処理する 
@@ -489,7 +490,6 @@ void OpenvrForDXLib::ParseTrackingFrame() {
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[1][3]
 		, controllerRightPoseData.pose.mDeviceToAbsoluteTracking.m[2][3]);
 }
-
 
 void OpenvrForDXLib::UpdateVRScreen(vr::Hmd_Eye nEye, void (*DrawTask)(void)) {
 	MATRIX projection;

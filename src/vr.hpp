@@ -7,46 +7,6 @@
 #pragma comment(lib,"openvr_api.lib")
 #pragma warning(suppress : 4996)//Matrices.hとpathtools.hでvisual studio非推奨関数を使用しているため
 
-class VR_MATRIX {
-	MATRIX value;
-private:
-	MATRIX MSub(MATRIX In1, MATRIX In2)
-	{
-		MATRIX Result =
-		{
-			{
-				{ In1.m[0][0] - In2.m[0][0], In1.m[0][1] - In2.m[0][1], In1.m[0][2] - In2.m[0][2], In1.m[0][3] - In2.m[0][3] },
-				{ In1.m[1][0] - In2.m[1][0], In1.m[1][1] - In2.m[1][1], In1.m[1][2] - In2.m[1][2], In1.m[1][3] - In2.m[1][3] },
-				{ In1.m[2][0] - In2.m[2][0], In1.m[2][1] - In2.m[2][1], In1.m[2][2] - In2.m[2][2], In1.m[2][3] - In2.m[2][3] },
-				{ In1.m[3][0] - In2.m[3][0], In1.m[3][1] - In2.m[3][1], In1.m[3][2] - In2.m[3][2], In1.m[3][3] - In2.m[3][3] }
-			}
-		};
-		return Result;
-	}
-public:
-	VR_MATRIX() noexcept : value(DxLib::MGetIdent()) {}
-	VR_MATRIX(MATRIX value) { this->value = value; }
-	//加算
-	VR_MATRIX operator+(VR_MATRIX obj)  const noexcept { return VR_MATRIX(DxLib::MAdd(this->value, obj.value)); }
-	VR_MATRIX operator+=(VR_MATRIX obj) noexcept {
-		this->value = DxLib::MAdd(this->value, obj.value);
-		return this->value;
-	}
-	VR_MATRIX operator-(VR_MATRIX obj) { return VR_MATRIX(MSub(this->value, obj.value)); }
-	VR_MATRIX operator-=(VR_MATRIX obj) noexcept {
-		this->value = MSub(this->value, obj.value);
-		return this->value;
-	}
-	VR_MATRIX operator*(VR_MATRIX obj) { return VR_MATRIX(DxLib::MMult(this->value, obj.value)); }
-	VR_MATRIX operator*=(VR_MATRIX obj) noexcept {
-		this->value = DxLib::MMult(this->value, obj.value);
-		return this->value;
-	}
-	VR_MATRIX Scale(float p1) const noexcept { return VR_MATRIX(DxLib::MScale(this->value, p1)); }
-	VR_MATRIX Inverse() const noexcept { return VR_MATRIX(DxLib::MInverse(this->value)); }
-	MATRIX Get() const noexcept { return this->value; }
-};
-
 class OpenvrForDXLib {
 private:
 	/// VRアプリケーションに必ず必要なデータ
@@ -71,10 +31,8 @@ private:
 	float m_fFarClip;
 
 	/// DXライブラリー専用の変数
-	int eyeRightScreen;
-	int eyeLeftScreen;
-
-
+	int eyeRightScreen = -1;
+	int eyeLeftScreen = -1;
 
 	/// IVRInput用のデータ///
 	// 実行ファイルからの相対パスが設定されていることを確認してください。
@@ -113,12 +71,10 @@ private:
 	vr::VRInputValueHandle_t m_inputHandRightPath = vr::k_ulInvalidInputValueHandle;
 	std::string inputHandRightPath = "/user/hand/right";
 
-
 	inline bool fileExists(const std::string& fileName) {
 		struct stat buff;
 		return (stat(fileName.c_str(), &buff) == 0);
 	}
-
 
 	// nEyeを基準としたHMDMatrixPoseEyeを取得します。
 	Matrix4 GetHMDMatrixPoseEye(vr::Hmd_Eye nEye);
@@ -129,9 +85,13 @@ private:
 	//HMD用のカメラの準備をします
 	void SetupCameras();
 
+	//SteamVR の行列をローカルの行列クラスに変換します。(steamVRから取得したデータを列ベクトルから行ベクトルへ変換した後4x4行列にする)
 	Matrix4 ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t& matPose);
+
+	//Eye_Left または Eye_Right である nEye を基準とした現在のビュープロジェクションマトリックスを取得します．
 	Matrix4 GetCurrentViewProjectionMatrix(vr::Hmd_Eye nEye);
-	void UpdateHMDMatrixPose();
+
+	void UpdateVRMatrixPose(VECTOR basePos);
 
 	// トラッキングフレームを解析し、その位置/回転/イベントを表示します。
 	void ParseTrackingFrame();
@@ -142,7 +102,7 @@ private:
 	//vr::VRActionHandle_tで定義したものしか使用できません
 	void GetActionHandle(std::string actionName, vr::VRActionHandle_t* pHandle);
 
-	// nEyeを基準としたMatrixProjectionEyeを取得します。
+	// eyeを基準としたMatrixProjectionEyeを取得します。
 	MATRIX GetProjectionMatrix(vr::EVREye eye);
 	MATRIX GetViewMatrix(vr::EVREye eye);
 
@@ -155,14 +115,15 @@ public:
 	VECTOR GetHMDPos() {
 		const float* pos = m_rmat4DevicePose[0].get();
 		MATRIX m_pos{};
-		return VGet(pos[12],pos[13],pos[14]);
+		return VGet(pos[12], pos[13], pos[14]);
 	}
 
 	//デバイスの状態を一括で取り込む
-	void UpdateState();
+	void UpdateState(VECTOR basePos);
 
 	//OpenVRが正常に動作しているかを取得する
 	bool vrCheck() { return (error == vr::VRInitError_None) ? true : false; }
 
-	void UpdateVRScreen(vr::Hmd_Eye nEye, void (*DrawTask)(void));
+	//VR用のScreenに描画したのち,HMDに画像を送り描画します
+	void UpdateVRScreen(vr::Hmd_Eye nEye,void (*DrawTask)(void));
 };
